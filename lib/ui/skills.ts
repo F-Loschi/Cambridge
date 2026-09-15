@@ -37,3 +37,11 @@ export const SKILL_ORDER: Skill[] = [
   "listening",
   "speaking",
 ];
+
+// Real Cambridge C1 Advanced paper durations, used for the timed mock mode.
+export const MOCK_EXAM_MINUTES: Record<Skill, number> = {
+  reading_use_of_english: 90,
+  writing: 90,
+  listening: 40,
+  speaking: 15,
+};

@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, XCircle } from "lucide-react";
+import { CheckCircle2, Clock, XCircle } from "lucide-react";
 import { isAnswerCorrect } from "@/lib/scoring/grading";
 import { readQuestionContent } from "@/lib/ui/questionContent";
+import { formatMMSS } from "@/lib/ui/time";
 import { SKILL_META } from "@/lib/ui/skills";
 import type { Skill } from "@/lib/types/database";
 
@@ -29,22 +30,85 @@ export function QuestionRunner({
   questions,
   submitUrl,
   onFinishHref,
+  source = "practice",
+  timeLimitSeconds,
 }: {
   questions: RunnerQuestion[];
   submitUrl: string;
   onFinishHref: string;
+  source?: "practice" | "mock_test";
+  timeLimitSeconds?: number;
 }) {
   const router = useRouter();
   const [index, setIndex] = useState(0);
   const [answer, setAnswer] = useState("");
   const [revealed, setRevealed] = useState(false);
   const [results, setResults] = useState<ResultItem[]>([]);
+  const [remaining, setRemaining] = useState<number | null>(timeLimitSeconds ?? null);
+  const [timedOut, setTimedOut] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const finished = index >= questions.length;
   const current = !finished ? questions[index] : null;
   const parsed = current ? readQuestionContent(current.content) : null;
+
+  const handleFinish = useCallback(
+    async (finalResults: ResultItem[]) => {
+      setSubmitting(true);
+      setSubmitError(null);
+      try {
+        const res = await fetch(submitUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ source, items: finalResults }),
+        });
+        if (!res.ok) throw new Error((await res.json().catch(() => null))?.error ?? "Falha ao salvar");
+        router.push(onFinishHref);
+        router.refresh();
+      } catch (err) {
+        setSubmitting(false);
+        setSubmitError(err instanceof Error ? err.message : "Falha ao salvar");
+      }
+    },
+    [submitUrl, source, router, onFinishHref],
+  );
+
+  // Countdown, only while there's a time limit and the session isn't over.
+  // The expiry check lives inside the interval's own callback (an event,
+  // not the effect body) so state updates there don't trigger the
+  // "no setState directly in an effect" lint rule — and re-running this
+  // effect on every relevant state change keeps that callback's closure
+  // fresh instead of reading stale index/revealed/results.
+  useEffect(() => {
+    if (timeLimitSeconds == null || finished || remaining == null) return;
+
+    const id = setInterval(() => {
+      if (remaining > 1) {
+        setRemaining(remaining - 1);
+        return;
+      }
+
+      const answeredFrom = index + (revealed ? 1 : 0);
+      const skipped: ResultItem[] = questions.slice(answeredFrom).map((q, offset) => ({
+        question_id: q.id,
+        skill: q.skill,
+        question_number: answeredFrom + offset + 1,
+        user_answer: "",
+        correct_answer: q.correct_answer,
+        correct: false,
+      }));
+      const finalResults = [...results, ...skipped];
+
+      setTimedOut(true);
+      setResults(finalResults);
+      setIndex(questions.length);
+      setRemaining(0);
+      void handleFinish(finalResults);
+    }, 1000);
+
+    return () => clearInterval(id);
+  }, [timeLimitSeconds, finished, remaining, index, revealed, results, questions, handleFinish]);
 
   function handleCheck() {
     if (!current || !answer.trim()) return;
@@ -69,35 +133,29 @@ export function QuestionRunner({
     setRevealed(false);
   }
 
-  async function handleFinish() {
-    setSubmitting(true);
-    setSubmitError(null);
-    try {
-      const res = await fetch(submitUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items: results }),
-      });
-      if (!res.ok) throw new Error((await res.json().catch(() => null))?.error ?? "Falha ao salvar");
-      router.push(onFinishHref);
-      router.refresh();
-    } catch (err) {
-      setSubmitting(false);
-      setSubmitError(err instanceof Error ? err.message : "Falha ao salvar");
-    }
-  }
+  const timerLabel =
+    remaining != null ? (
+      <span
+        className={`flex items-center gap-1 text-xs font-bold ${
+          remaining <= 300 ? "text-danger" : "text-muted"
+        }`}
+      >
+        <Clock size={14} /> {formatMMSS(remaining)}
+      </span>
+    ) : null;
 
   if (finished) {
     const correctCount = results.filter((r) => r.correct).length;
     return (
       <div className="animate-pop rounded-3xl border border-border bg-surface p-8 text-center shadow-sm">
+        {timedOut && <p className="mb-3 text-sm font-bold text-danger">Tempo esgotado!</p>}
         <p className="font-display text-4xl font-extrabold text-brand">
           {correctCount}/{results.length}
         </p>
         <p className="mt-1 text-sm text-muted">respostas corretas</p>
         <button
           type="button"
-          onClick={handleFinish}
+          onClick={() => handleFinish(results)}
           disabled={submitting}
           className="mt-6 w-full rounded-2xl bg-brand px-4 py-3 text-sm font-extrabold text-white shadow-sm transition-transform hover:-translate-y-0.5 disabled:opacity-50"
         >
@@ -114,9 +172,12 @@ export function QuestionRunner({
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-xs font-bold text-muted">
-        Questão {index + 1} de {questions.length} · {meta.short} · {current.part_type}
-      </p>
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-bold text-muted">
+          Questão {index + 1} de {questions.length} · {meta.short} · {current.part_type}
+        </p>
+        {timerLabel}
+      </div>
 
       <div className="rounded-3xl border border-border bg-surface p-5 shadow-sm">
         {parsed.contextText && (

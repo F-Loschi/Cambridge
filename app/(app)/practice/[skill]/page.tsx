@@ -3,8 +3,9 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Sprout } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import type { Skill } from "@/lib/types/database";
-import { SKILL_META, SKILL_ORDER } from "@/lib/ui/skills";
-import { QuestionRunner, type RunnerQuestion } from "@/components/QuestionRunner";
+import { MOCK_EXAM_MINUTES, SKILL_META, SKILL_ORDER } from "@/lib/ui/skills";
+import { PracticeStarter } from "@/components/PracticeStarter";
+import type { RunnerQuestion } from "@/components/QuestionRunner";
 
 export default async function PracticePage({
   params,
@@ -45,10 +46,9 @@ export default async function PracticePage({
           </p>
         </div>
       ) : (
-        <QuestionRunner
+        <PracticeStarter
           questions={questions as RunnerQuestion[]}
-          submitUrl="/api/attempts/submit"
-          onFinishHref="/practice"
+          mockMinutes={MOCK_EXAM_MINUTES[skill as Skill]}
         />
       )}
     </div>

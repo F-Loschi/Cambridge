@@ -24,7 +24,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { items } = (await request.json()) as { items: SubmittedItem[] };
+  const { items, source } = (await request.json()) as {
+    items: SubmittedItem[];
+    source?: "practice" | "mock_test";
+  };
   if (!items?.length) {
     return NextResponse.json({ error: "No items" }, { status: 400 });
   }
@@ -46,7 +49,7 @@ export async function POST(request: Request) {
       .insert({
         user_id: user.id,
         skill,
-        source: "practice",
+        source: source ?? "practice",
         finished_at: new Date().toISOString(),
         raw_score: correctCount,
         scaled_score: scaledScore,
