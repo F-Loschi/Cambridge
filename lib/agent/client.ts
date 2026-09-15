@@ -1,13 +1,16 @@
-import Anthropic from "@anthropic-ai/sdk";
+import { GoogleGenAI } from "@google/genai";
 
-let client: Anthropic | null = null;
+let client: GoogleGenAI | null = null;
 
 // Server-only. Never import this module from a client component.
-export function getAnthropicClient(): Anthropic {
+export function getGeminiClient(): GoogleGenAI {
   if (!client) {
-    client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
+    client = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
   }
   return client;
 }
 
-export const AGENT_MODEL = "claude-sonnet-5";
+// Flash is fast, good at structured/rubric-following tasks like grading,
+// and has the most generous free tier — the right default for this app.
+// Bump to "gemini-2.5-pro" later if grading quality needs it.
+export const AGENT_MODEL = "gemini-2.5-flash";

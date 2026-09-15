@@ -6,7 +6,7 @@ App pessoal de estudos para o exame Cambridge C1 Advanced (CAE): dashboard de pr
 
 - [Next.js](https://nextjs.org) (App Router, TypeScript, Tailwind)
 - [Supabase](https://supabase.com) — Postgres, Auth, Storage
-- [Claude API](https://docs.claude.com) — agente corretor e pipeline de geração de questões
+- [Gemini API](https://ai.google.dev) — agente corretor e pipeline de geração de questões (free tier)
 
 ## Setup
 
@@ -14,7 +14,7 @@ App pessoal de estudos para o exame Cambridge C1 Advanced (CAE): dashboard de pr
 2. Copie `.env.example` para `.env.local` e preencha:
    - `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` — em Project Settings → API.
    - `SUPABASE_SERVICE_ROLE_KEY` — mesma tela (nunca expor no cliente).
-   - `ANTHROPIC_API_KEY` — em [console.anthropic.com](https://console.anthropic.com).
+   - `GEMINI_API_KEY` — grátis em [aistudio.google.com/apikey](https://aistudio.google.com/apikey) (free tier, sem cartão).
 3. Aplique as migrations em `supabase/migrations/` — via SQL Editor do Supabase (copiar/colar cada arquivo em ordem) ou com o [Supabase CLI](https://supabase.com/docs/guides/cli): `supabase link` e depois `supabase db push`.
 4. Promova seu próprio usuário a admin depois do primeiro login:
    ```sql

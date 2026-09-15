@@ -1,5 +1,5 @@
-import type Anthropic from "@anthropic-ai/sdk";
-import { AGENT_MODEL, getAnthropicClient } from "@/lib/agent/client";
+import { Type } from "@google/genai";
+import { AGENT_MODEL, getGeminiClient } from "@/lib/agent/client";
 import type { Skill } from "@/lib/types/database";
 
 // Generator -> blind solver -> auditor, as designed for the question bank:
@@ -12,32 +12,41 @@ export interface GeneratedQuestion {
   difficultyEstimate: "B2" | "C1" | "C2";
 }
 
+const GENERATED_QUESTION_SCHEMA = {
+  type: Type.OBJECT,
+  properties: {
+    content: { type: Type.OBJECT, properties: {} }, // shape varies by part_type
+    correctAnswer: { type: Type.STRING },
+    explanation: { type: Type.STRING },
+    difficultyEstimate: { type: Type.STRING, enum: ["B2", "C1", "C2"] },
+  },
+  required: ["content", "correctAnswer", "explanation", "difficultyEstimate"],
+};
+
 export async function generateQuestion(params: {
   skill: Skill;
   partType: string;
   calibrationExamples: string[]; // few-shot examples from official Cambridge sample papers
 }): Promise<GeneratedQuestion> {
-  const anthropic = getAnthropicClient();
+  const ai = getGeminiClient();
 
-  const message = await anthropic.messages.create({
+  const response = await ai.models.generateContent({
     model: AGENT_MODEL,
-    max_tokens: 1024,
-    system: `You write original Cambridge C1 Advanced practice questions for part type "${params.partType}".
+    config: {
+      systemInstruction: `You write original Cambridge C1 Advanced practice questions for part type "${params.partType}".
 Match the format, register and difficulty of the calibration examples exactly, but never reuse
-their wording verbatim. Respond ONLY with JSON: { "content": object, "correctAnswer": string,
-"explanation": string, "difficultyEstimate": "B2"|"C1"|"C2" }.`,
-    messages: [
-      {
-        role: "user",
-        content: `Calibration examples (official style reference, do not copy):
+their wording verbatim.`,
+      responseMimeType: "application/json",
+      responseSchema: GENERATED_QUESTION_SCHEMA,
+    },
+    contents: `Calibration examples (official style reference, do not copy):
 ${params.calibrationExamples.map((e, i) => `Example ${i + 1}:\n${e}`).join("\n\n")}
 
 Generate one new, original question.`,
-      },
-    ],
   });
 
-  return parseJsonResponse<GeneratedQuestion>(message);
+  if (!response.text) throw new Error("Agent returned no text content");
+  return JSON.parse(response.text) as GeneratedQuestion;
 }
 
 /** Independent pass: answers the question with no access to the generator's own answer/explanation. */
@@ -46,16 +55,24 @@ export async function blindSolve(params: {
   partType: string;
   content: Record<string, unknown>;
 }): Promise<{ answer: string }> {
-  const anthropic = getAnthropicClient();
+  const ai = getGeminiClient();
 
-  const message = await anthropic.messages.create({
+  const response = await ai.models.generateContent({
     model: AGENT_MODEL,
-    max_tokens: 512,
-    system: `You are a C1 Advanced candidate answering a "${params.partType}" question. Respond ONLY with JSON: { "answer": string }.`,
-    messages: [{ role: "user", content: JSON.stringify(params.content) }],
+    config: {
+      systemInstruction: `You are a C1 Advanced candidate answering a "${params.partType}" question.`,
+      responseMimeType: "application/json",
+      responseSchema: {
+        type: Type.OBJECT,
+        properties: { answer: { type: Type.STRING } },
+        required: ["answer"],
+      },
+    },
+    contents: JSON.stringify(params.content),
   });
 
-  return parseJsonResponse<{ answer: string }>(message);
+  if (!response.text) throw new Error("Agent returned no text content");
+  return JSON.parse(response.text) as { answer: string };
 }
 
 export interface AuditResult {
@@ -94,12 +111,4 @@ export function auditQuestion(params: {
 
 function normalize(s: string): string {
   return s.trim().toLowerCase().replace(/\s+/g, " ");
-}
-
-function parseJsonResponse<T>(message: Anthropic.Message): T {
-  const textBlock = message.content.find((block) => block.type === "text");
-  if (!textBlock || textBlock.type !== "text") {
-    throw new Error("Agent returned no text content");
-  }
-  return JSON.parse(textBlock.text) as T;
 }
