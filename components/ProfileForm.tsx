@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LogOut, Save } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { DatePicker } from "@/components/DatePicker";
 
 export function ProfileForm({
   userId,
@@ -71,15 +72,15 @@ export function ProfileForm({
         </p>
 
         <label className="mb-1 block text-xs font-bold text-muted">Data do exame</label>
-        <input
-          type="date"
-          value={examDate}
-          onChange={(e) => {
-            setExamDate(e.target.value);
-            setSavedAt(null);
-          }}
-          className="mb-4 w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm outline-none focus:border-brand"
-        />
+        <div className="mb-4">
+          <DatePicker
+            value={examDate}
+            onChange={(iso) => {
+              setExamDate(iso);
+              setSavedAt(null);
+            }}
+          />
+        </div>
 
         <button
           type="submit"
