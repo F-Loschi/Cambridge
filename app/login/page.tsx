@@ -34,7 +34,7 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-background px-6">
+    <main className="flex min-h-screen flex-col items-center justify-center px-6">
       <div className="w-full max-w-sm animate-pop rounded-3xl border border-border bg-surface p-8 shadow-sm">
         <Flame size={36} className="mb-2 text-streak" strokeWidth={2} />
         <h1 className="font-display mb-6 text-2xl font-extrabold text-brand">
