@@ -65,3 +65,16 @@ export interface DailyActivity {
   minutes_studied: number;
   attempts_count: number;
 }
+
+export interface ReviewItem {
+  id: string;
+  user_id: string;
+  question_id: string;
+  interval_days: number;
+  ease: number;
+  due_at: string; // YYYY-MM-DD
+  times_seen: number;
+  times_correct: number;
+  last_reviewed_at: string | null;
+  created_at: string;
+}

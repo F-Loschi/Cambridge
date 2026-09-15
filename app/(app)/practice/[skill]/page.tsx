@@ -4,6 +4,7 @@ import { ArrowLeft, Sprout } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import type { Skill } from "@/lib/types/database";
 import { SKILL_META, SKILL_ORDER } from "@/lib/ui/skills";
+import { QuestionRunner, type RunnerQuestion } from "@/components/QuestionRunner";
 
 export default async function PracticePage({
   params,
@@ -18,7 +19,7 @@ export default async function PracticePage({
   const supabase = await createClient();
   const { data: questions } = await supabase
     .from("question_bank")
-    .select("id, part_type, content, difficulty_estimate")
+    .select("id, skill, part_type, content, correct_answer")
     .eq("skill", skill)
     .eq("status", "approved")
     .limit(10);
@@ -44,19 +45,11 @@ export default async function PracticePage({
           </p>
         </div>
       ) : (
-        <ul className="flex flex-col gap-3">
-          {questions.map((q, i) => (
-            <li
-              key={q.id}
-              className="rounded-2xl border border-border bg-surface p-4 text-sm shadow-sm"
-            >
-              <p className="mb-1 text-xs font-bold text-muted">
-                Questão {i + 1} · {q.part_type}
-              </p>
-              {/* TODO: renderer per part_type shape */}
-            </li>
-          ))}
-        </ul>
+        <QuestionRunner
+          questions={questions as RunnerQuestion[]}
+          submitUrl="/api/attempts/submit"
+          onFinishHref="/practice"
+        />
       )}
     </div>
   );

@@ -1,5 +1,6 @@
 import { Type } from "@google/genai";
 import { AGENT_MODEL, getGeminiClient } from "@/lib/agent/client";
+import { isAnswerCorrect } from "@/lib/scoring/grading";
 import type { Skill } from "@/lib/types/database";
 
 // Generator -> blind solver -> auditor, as designed for the question bank:
@@ -91,8 +92,7 @@ export function auditQuestion(params: {
 }): AuditResult {
   const notes: string[] = [];
 
-  const answersAgree =
-    normalize(params.generatorAnswer) === normalize(params.blindSolverAnswer);
+  const answersAgree = isAnswerCorrect(params.generatorAnswer, params.blindSolverAnswer);
 
   if (!answersAgree) {
     notes.push(
@@ -107,8 +107,4 @@ export function auditQuestion(params: {
     return { status: "needs_human_review", notes };
   }
   return { status: "approved", notes };
-}
-
-function normalize(s: string): string {
-  return s.trim().toLowerCase().replace(/\s+/g, " ");
 }
