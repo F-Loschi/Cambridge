@@ -9,13 +9,16 @@ export function ProfileForm({
   userId,
   email,
   initialFullName,
+  initialExamDate,
 }: {
   userId: string;
   email: string;
   initialFullName: string;
+  initialExamDate: string | null;
 }) {
   const router = useRouter();
   const [fullName, setFullName] = useState(initialFullName);
+  const [examDate, setExamDate] = useState(initialExamDate ?? "");
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -28,7 +31,7 @@ export function ProfileForm({
 
     const { error } = await supabase
       .from("profiles")
-      .update({ full_name: fullName })
+      .update({ full_name: fullName, exam_date: examDate || null })
       .eq("id", userId);
 
     setSaving(false);
@@ -37,6 +40,7 @@ export function ProfileForm({
       return;
     }
     setSavedAt(Date.now());
+    router.refresh();
   }
 
   async function handleSignOut() {
@@ -65,6 +69,17 @@ export function ProfileForm({
         <p className="mb-4 rounded-2xl border border-border bg-background px-4 py-3 text-sm text-muted">
           {email}
         </p>
+
+        <label className="mb-1 block text-xs font-bold text-muted">Data do exame</label>
+        <input
+          type="date"
+          value={examDate}
+          onChange={(e) => {
+            setExamDate(e.target.value);
+            setSavedAt(null);
+          }}
+          className="mb-4 w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm outline-none focus:border-brand"
+        />
 
         <button
           type="submit"

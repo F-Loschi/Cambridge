@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { CalendarClock } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { computeStreak } from "@/lib/scoring/streak";
 import { averageScoreBySkill, overallScore, bandFor, CAMBRIDGE_SCALE } from "@/lib/scoring/scale";
+import { daysUntilExam } from "@/lib/scoring/examCountdown";
 import { StreakFlame } from "@/components/StreakFlame";
 import { SkillRing } from "@/components/SkillRing";
 import { SKILL_META, SKILL_ORDER } from "@/lib/ui/skills";
@@ -32,7 +34,7 @@ export default async function DashboardPage() {
       .eq("user_id", user.id)
       .order("started_at", { ascending: false })
       .limit(100),
-    supabase.from("profiles").select("full_name").eq("id", user.id).single(),
+    supabase.from("profiles").select("full_name, exam_date").eq("id", user.id).single(),
   ]);
 
   const streak = computeStreak(activity ?? []);
@@ -40,10 +42,33 @@ export default async function DashboardPage() {
   const overall = overallScore(bySkill);
   const firstName =
     profile?.full_name?.split(" ")[0] || user.email?.split("@")[0] || "por aí";
+  const examDays = daysUntilExam(profile?.exam_date ?? null);
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
       <h1 className="mb-6 text-2xl font-extrabold">Olá, {firstName}!</h1>
+
+      <Link
+        href="/profile"
+        className="animate-pop mb-6 flex items-center gap-3 rounded-3xl border border-border bg-surface p-4 shadow-sm transition-transform hover:-translate-y-0.5"
+      >
+        <CalendarClock size={22} className="shrink-0 text-brand" strokeWidth={2.25} />
+        {examDays == null ? (
+          <p className="text-sm font-bold text-muted">
+            Defina a data do seu exame no perfil pra acompanhar a contagem regressiva
+          </p>
+        ) : examDays > 0 ? (
+          <p className="text-sm font-bold">
+            Faltam <span className="text-brand">{examDays}</span> dia{examDays === 1 ? "" : "s"} pro seu exame
+          </p>
+        ) : examDays === 0 ? (
+          <p className="text-sm font-bold text-streak">É hoje! Boa sorte no exame.</p>
+        ) : (
+          <p className="text-sm font-bold text-muted">
+            Sua data de exame já passou — atualize no perfil
+          </p>
+        )}
+      </Link>
 
       <section className="mb-8 grid grid-cols-2 gap-4">
         <div className="animate-pop rounded-3xl border border-border bg-surface p-5 shadow-sm">

@@ -16,6 +16,7 @@ export interface Profile {
   id: string;
   role: UserRole;
   full_name: string | null;
+  exam_date: string | null; // YYYY-MM-DD
   created_at: string;
 }
 
