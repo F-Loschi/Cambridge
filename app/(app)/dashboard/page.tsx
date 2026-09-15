@@ -21,7 +21,7 @@ export default async function DashboardPage() {
 
   if (!user) return null; // proxy.ts already redirects unauthenticated users
 
-  const [{ data: activity }, { data: attempts }] = await Promise.all([
+  const [{ data: activity }, { data: attempts }, { data: profile }] = await Promise.all([
     supabase
       .from("daily_activity")
       .select("activity_date, attempts_count")
@@ -32,18 +32,18 @@ export default async function DashboardPage() {
       .eq("user_id", user.id)
       .order("started_at", { ascending: false })
       .limit(100),
+    supabase.from("profiles").select("full_name").eq("id", user.id).single(),
   ]);
 
   const streak = computeStreak(activity ?? []);
   const bySkill = averageScoreBySkill(attempts ?? []);
   const overall = overallScore(bySkill);
-  const firstName = user.email?.split("@")[0] ?? "por aí";
+  const firstName =
+    profile?.full_name?.split(" ")[0] || user.email?.split("@")[0] || "por aí";
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
-      <h1 className="mb-6 text-2xl font-extrabold">
-        Olá, {firstName}! 👋
-      </h1>
+      <h1 className="mb-6 text-2xl font-extrabold">Olá, {firstName}!</h1>
 
       <section className="mb-8 grid grid-cols-2 gap-4">
         <div className="animate-pop rounded-3xl border border-border bg-surface p-5 shadow-sm">
@@ -81,6 +81,7 @@ export default async function DashboardPage() {
           {SKILL_ORDER.map((skill) => {
             const meta = SKILL_META[skill];
             const score = bySkill[skill];
+            const Icon = meta.icon;
             return (
               <Link
                 key={skill}
@@ -88,7 +89,7 @@ export default async function DashboardPage() {
                 className="animate-pop flex flex-col items-center gap-2 rounded-3xl border border-border bg-surface p-4 text-center shadow-sm transition-transform hover:-translate-y-0.5 hover:shadow-md"
               >
                 <SkillRing percent={toRingPercent(score)} color={meta.color}>
-                  <span className="text-2xl">{meta.emoji}</span>
+                  <Icon size={26} strokeWidth={2.25} style={{ color: meta.color }} />
                 </SkillRing>
                 <p className="text-sm font-bold">{meta.short}</p>
                 <p className="text-xs text-muted">

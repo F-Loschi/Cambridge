@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Home, Target, User, Wrench, type LucideIcon } from "lucide-react";
 
-const BASE_LINKS = [
-  { href: "/dashboard", label: "Início", emoji: "🏠" },
-  { href: "/practice", label: "Praticar", emoji: "🎯" },
+const BASE_LINKS: { href: string; label: string; icon: LucideIcon }[] = [
+  { href: "/dashboard", label: "Início", icon: Home },
+  { href: "/practice", label: "Praticar", icon: Target },
+  { href: "/profile", label: "Perfil", icon: User },
 ];
 
 export function NavLinks({
@@ -17,7 +19,7 @@ export function NavLinks({
 }) {
   const pathname = usePathname();
   const links = isAdmin
-    ? [...BASE_LINKS, { href: "/admin/review", label: "Revisão", emoji: "🛠️" }]
+    ? [...BASE_LINKS, { href: "/admin/review", label: "Revisão", icon: Wrench }]
     : BASE_LINKS;
 
   if (variant === "top") {
@@ -25,17 +27,19 @@ export function NavLinks({
       <nav className="hidden sm:flex items-center gap-1">
         {links.map((link) => {
           const active = pathname.startsWith(link.href);
+          const Icon = link.icon;
           return (
             <Link
               key={link.href}
               href={link.href}
-              className={`rounded-full px-4 py-2 text-sm font-bold transition-colors ${
+              className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-bold transition-colors ${
                 active
                   ? "bg-brand text-white"
                   : "text-muted hover:bg-border/60"
               }`}
             >
-              {link.emoji} {link.label}
+              <Icon size={16} strokeWidth={2.5} />
+              {link.label}
             </Link>
           );
         })}
@@ -47,6 +51,7 @@ export function NavLinks({
     <nav className="sm:hidden fixed bottom-0 inset-x-0 z-20 flex justify-around border-t border-border bg-surface py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
       {links.map((link) => {
         const active = pathname.startsWith(link.href);
+        const Icon = link.icon;
         return (
           <Link
             key={link.href}
@@ -55,7 +60,7 @@ export function NavLinks({
               active ? "text-brand" : "text-muted"
             }`}
           >
-            <span className="text-xl">{link.emoji}</span>
+            <Icon size={22} strokeWidth={active ? 2.5 : 2} />
             {link.label}
           </Link>
         );

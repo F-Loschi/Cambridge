@@ -1,31 +1,32 @@
+import { BookOpen, Headphones, Mic, PenLine, type LucideIcon } from "lucide-react";
 import type { Skill } from "@/lib/types/database";
 
 export const SKILL_META: Record<
   Skill,
-  { label: string; short: string; emoji: string; color: string }
+  { label: string; short: string; icon: LucideIcon; color: string }
 > = {
   reading_use_of_english: {
     label: "Reading & Use of English",
     short: "Reading",
-    emoji: "📖",
+    icon: BookOpen,
     color: "var(--color-brand)",
   },
   writing: {
     label: "Writing",
     short: "Writing",
-    emoji: "✍️",
+    icon: PenLine,
     color: "var(--color-violet)",
   },
   listening: {
     label: "Listening",
     short: "Listening",
-    emoji: "🎧",
+    icon: Headphones,
     color: "var(--color-teal)",
   },
   speaking: {
     label: "Speaking",
     short: "Speaking",
-    emoji: "🗣️",
+    icon: Mic,
     color: "var(--color-streak)",
   },
 };

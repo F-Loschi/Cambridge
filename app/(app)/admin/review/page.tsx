@@ -1,3 +1,4 @@
+import { CheckCircle2, Wrench } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 
 // Reachable only by admins — enforced by proxy.ts and RLS on question_bank.
@@ -11,11 +12,14 @@ export default async function ReviewQueuePage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
-      <h1 className="mb-6 text-2xl font-extrabold">🛠️ Fila de revisão</h1>
+      <h1 className="mb-6 flex items-center gap-2 text-2xl font-extrabold">
+        <Wrench size={24} className="text-brand" strokeWidth={2.25} />
+        Fila de revisão
+      </h1>
       {!pending || pending.length === 0 ? (
-        <div className="rounded-3xl border border-dashed border-border p-8 text-center">
-          <p className="text-3xl">✅</p>
-          <p className="mt-2 text-sm text-muted">Nenhuma questão pendente.</p>
+        <div className="flex flex-col items-center gap-2 rounded-3xl border border-dashed border-border p-8 text-center">
+          <CheckCircle2 size={32} className="text-success" strokeWidth={1.75} />
+          <p className="text-sm text-muted">Nenhuma questão pendente.</p>
         </div>
       ) : (
         <ul className="flex flex-col gap-4">
