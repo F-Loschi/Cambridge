@@ -33,42 +33,47 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center gap-4 px-6">
-      <h1 className="text-xl font-semibold">Cambridge C1 Prep</h1>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-        <input
-          type="email"
-          required
-          placeholder="seu@email.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="rounded border px-3 py-2 text-sm"
-        />
-        <input
-          type="password"
-          required
-          minLength={6}
-          placeholder="senha"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="rounded border px-3 py-2 text-sm"
-        />
+    <main className="flex min-h-screen flex-col items-center justify-center bg-background px-6">
+      <div className="w-full max-w-sm animate-pop rounded-3xl border border-border bg-surface p-8 shadow-sm">
+        <p className="mb-1 text-4xl">🔥</p>
+        <h1 className="font-display mb-6 text-2xl font-extrabold text-brand">
+          Cambridge C1 Prep
+        </h1>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+          <input
+            type="email"
+            required
+            placeholder="seu@email.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="rounded-2xl border border-border bg-background px-4 py-3 text-sm outline-none focus:border-brand"
+          />
+          <input
+            type="password"
+            required
+            minLength={6}
+            placeholder="senha"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="rounded-2xl border border-border bg-background px-4 py-3 text-sm outline-none focus:border-brand"
+          />
+          <button
+            type="submit"
+            disabled={loading}
+            className="mt-2 rounded-2xl bg-brand px-4 py-3 text-sm font-extrabold text-white shadow-sm transition-transform hover:-translate-y-0.5 disabled:opacity-50"
+          >
+            {loading ? "..." : mode === "signin" ? "Entrar" : "Criar conta"}
+          </button>
+          {error && <p className="text-sm font-bold text-danger">{error}</p>}
+        </form>
         <button
-          type="submit"
-          disabled={loading}
-          className="rounded bg-neutral-900 px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
+          type="button"
+          onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
+          className="mt-4 text-xs font-bold text-muted underline"
         >
-          {loading ? "..." : mode === "signin" ? "Entrar" : "Criar conta"}
+          {mode === "signin" ? "Não tem conta? Criar uma" : "Já tem conta? Entrar"}
         </button>
-        {error && <p className="text-sm text-red-600">{error}</p>}
-      </form>
-      <button
-        type="button"
-        onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
-        className="text-xs text-neutral-500 underline"
-      >
-        {mode === "signin" ? "Não tem conta? Criar uma" : "Já tem conta? Entrar"}
-      </button>
+      </div>
     </main>
   );
 }
