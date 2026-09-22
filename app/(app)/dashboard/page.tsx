@@ -13,6 +13,7 @@ import { daysUntilExam } from "@/lib/scoring/examCountdown";
 import { BADGE_DEFS, computeEarnedBadgeIds } from "@/lib/scoring/badges";
 import { StreakFlame } from "@/components/StreakFlame";
 import { SkillRing } from "@/components/SkillRing";
+import { WeeklyInsightCard } from "@/components/WeeklyInsightCard";
 import { SKILL_META, SKILL_ORDER } from "@/lib/ui/skills";
 
 function toRingPercent(score: number | null): number {
@@ -46,7 +47,9 @@ export default async function DashboardPage() {
         .limit(100),
       supabase
         .from("profiles")
-        .select("full_name, exam_date, streak_shields, daily_goal_questions")
+        .select(
+          "full_name, exam_date, streak_shields, daily_goal_questions, weekly_insight_text, weekly_insight_generated_at",
+        )
         .eq("id", user.id)
         .single(),
       supabase
@@ -106,6 +109,14 @@ export default async function DashboardPage() {
           </p>
         )}
       </Link>
+
+      <div className="mb-6">
+        <WeeklyInsightCard
+          initialText={profile?.weekly_insight_text ?? null}
+          initialGeneratedAt={profile?.weekly_insight_generated_at ?? null}
+          now={new Date().toISOString()}
+        />
+      </div>
 
       <section className="mb-8 grid grid-cols-2 gap-4">
         <div className="animate-pop rounded-3xl border border-border bg-surface p-5 shadow-sm">

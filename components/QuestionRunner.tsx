@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, Clock, XCircle } from "lucide-react";
+import { CheckCircle2, Clock, Sparkles, XCircle } from "lucide-react";
 import { isAnswerCorrect } from "@/lib/scoring/grading";
 import { readQuestionContent } from "@/lib/ui/questionContent";
 import { formatMMSS } from "@/lib/ui/time";
@@ -48,6 +48,8 @@ export function QuestionRunner({
   const [timedOut, setTimedOut] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [explanation, setExplanation] = useState<string | null>(null);
+  const [explaining, setExplaining] = useState(false);
 
   const finished = index >= questions.length;
   const current = !finished ? questions[index] : null;
@@ -131,6 +133,31 @@ export function QuestionRunner({
     setIndex((i) => i + 1);
     setAnswer("");
     setRevealed(false);
+    setExplanation(null);
+  }
+
+  async function handleExplain() {
+    if (!current || !parsed || explaining) return;
+    setExplaining(true);
+    try {
+      const res = await fetch("/api/agent/explain", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          partType: current.part_type,
+          prompt: parsed.prompt ?? "",
+          userAnswer: lastResult?.user_answer ?? "",
+          correctAnswer: current.correct_answer,
+          isCorrect: lastResult?.correct ?? false,
+        }),
+      });
+      const data = await res.json();
+      setExplanation(res.ok ? data.explanation : "Não consegui gerar uma explicação agora.");
+    } catch {
+      setExplanation("Não consegui gerar uma explicação agora.");
+    } finally {
+      setExplaining(false);
+    }
   }
 
   const timerLabel =
@@ -231,6 +258,25 @@ export function QuestionRunner({
           >
             {lastResult.correct ? <CheckCircle2 size={18} /> : <XCircle size={18} />}
             {lastResult.correct ? "Certinho!" : `Resposta certa: ${current.correct_answer}`}
+          </div>
+        )}
+
+        {revealed && !explanation && (
+          <button
+            type="button"
+            onClick={handleExplain}
+            disabled={explaining}
+            className="mt-3 flex items-center gap-1.5 text-xs font-bold text-violet disabled:opacity-50"
+          >
+            <Sparkles size={14} />
+            {explaining ? "Pensando..." : "Por que essa resposta?"}
+          </button>
+        )}
+
+        {explanation && (
+          <div className="mt-3 flex items-start gap-2 rounded-2xl bg-violet/10 p-3 text-sm text-foreground">
+            <Sparkles size={16} className="mt-0.5 shrink-0 text-violet" />
+            <p>{explanation}</p>
           </div>
         )}
       </div>

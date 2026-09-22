@@ -20,6 +20,8 @@ export interface Profile {
   streak_shields: number;
   last_shield_milestone: number;
   daily_goal_questions: number;
+  weekly_insight_text: string | null;
+  weekly_insight_generated_at: string | null;
   created_at: string;
 }
 
