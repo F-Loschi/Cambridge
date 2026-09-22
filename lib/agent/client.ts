@@ -10,7 +10,9 @@ export function getGeminiClient(): GoogleGenAI {
   return client;
 }
 
-// Flash is fast, good at structured/rubric-following tasks like grading,
-// and has the most generous free tier — the right default for this app.
-// Bump to "gemini-2.5-pro" later if grading quality needs it.
-export const AGENT_MODEL = "gemini-2.5-flash";
+// gemini-2.5-flash was retired for keys created after some cutoff (404 "no
+// longer available to new users" — found live, 2026-09-22). Verified this
+// one actually responds against the real API; re-check with
+// `curl https://generativelanguage.googleapis.com/v1beta/models?key=$GEMINI_API_KEY`
+// if this ever 404s again, since the model lineup moves fast.
+export const AGENT_MODEL = "gemini-3.6-flash";
