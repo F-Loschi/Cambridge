@@ -40,6 +40,24 @@ export function averageScoreBySkill(
   ) as Record<Skill, number | null>;
 }
 
+/** Best (highest) scaled_score per skill — used for milestone badges, not the dashboard average. */
+export function bestScoreBySkill(
+  attempts: Pick<Attempt, "skill" | "scaled_score" | "started_at">[],
+): Record<Skill, number | null> {
+  const best = Object.fromEntries(ALL_SKILLS.map((s) => [s, null])) as Record<Skill, number | null>;
+
+  for (const attempt of attempts) {
+    if (attempt.scaled_score != null) {
+      const current = best[attempt.skill];
+      if (current == null || attempt.scaled_score > current) {
+        best[attempt.skill] = attempt.scaled_score;
+      }
+    }
+  }
+
+  return best;
+}
+
 /**
  * Cambridge weighs all four papers equally (25% each). Overall score is
  * only computed once every skill has at least one attempt — a partial

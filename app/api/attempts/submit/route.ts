@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { CAMBRIDGE_SCALE } from "@/lib/scoring/scale";
-import { bumpDailyActivity } from "@/lib/server/dailyActivity";
+import { reconcileGamification } from "@/lib/server/gamification";
 import { updateReviewItems } from "@/lib/server/reviewQueue";
 import type { Skill } from "@/lib/types/database";
 
@@ -77,7 +77,7 @@ export async function POST(request: Request) {
     }
   }
 
-  await bumpDailyActivity(supabase, user.id);
+  await reconcileGamification(supabase, user.id, items.length);
 
   // Only wrong answers enter the spaced-repetition queue — a fresh correct
   // answer to a question that happens to already be queued doesn't touch it

@@ -11,7 +11,7 @@ export default async function ProfilePage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("full_name, exam_date")
+    .select("full_name, exam_date, daily_goal_questions")
     .eq("id", user.id)
     .single();
 
@@ -23,6 +23,7 @@ export default async function ProfilePage() {
         email={user.email ?? ""}
         initialFullName={profile?.full_name ?? ""}
         initialExamDate={profile?.exam_date ?? null}
+        initialDailyGoal={profile?.daily_goal_questions ?? 5}
       />
     </div>
   );

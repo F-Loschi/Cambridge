@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { averageScoreBySkill, bandFor, CAMBRIDGE_SCALE, overallScore } from "./scale";
+import { averageScoreBySkill, bandFor, bestScoreBySkill, CAMBRIDGE_SCALE, overallScore } from "./scale";
 
 describe("averageScoreBySkill", () => {
   it("averages multiple attempts per skill and nulls out skills with none", () => {
@@ -18,6 +18,21 @@ describe("averageScoreBySkill", () => {
   it("ignores attempts with a null scaled_score", () => {
     const attempts = [{ skill: "writing" as const, scaled_score: null, started_at: "" }];
     expect(averageScoreBySkill(attempts).writing).toBeNull();
+  });
+});
+
+describe("bestScoreBySkill", () => {
+  it("keeps the highest score per skill, not the average", () => {
+    const attempts = [
+      { skill: "writing" as const, scaled_score: 170, started_at: "" },
+      { skill: "writing" as const, scaled_score: 195, started_at: "" },
+      { skill: "writing" as const, scaled_score: 180, started_at: "" },
+    ];
+    expect(bestScoreBySkill(attempts).writing).toBe(195);
+  });
+
+  it("nulls out skills with no attempts", () => {
+    expect(bestScoreBySkill([]).speaking).toBeNull();
   });
 });
 

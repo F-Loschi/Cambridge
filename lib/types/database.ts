@@ -17,6 +17,9 @@ export interface Profile {
   role: UserRole;
   full_name: string | null;
   exam_date: string | null; // YYYY-MM-DD
+  streak_shields: number;
+  last_shield_milestone: number;
+  daily_goal_questions: number;
   created_at: string;
 }
 
@@ -64,6 +67,7 @@ export interface DailyActivity {
   activity_date: string; // YYYY-MM-DD
   minutes_studied: number;
   attempts_count: number;
+  questions_answered: number;
 }
 
 export interface ReviewItem {

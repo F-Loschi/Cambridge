@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { bumpDailyActivity } from "@/lib/server/dailyActivity";
+import { reconcileGamification } from "@/lib/server/gamification";
 import { updateReviewItems } from "@/lib/server/reviewQueue";
 
 interface SubmittedItem {
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
   }
 
   await updateReviewItems(supabase, user.id, items);
-  await bumpDailyActivity(supabase, user.id);
+  await reconcileGamification(supabase, user.id, items.length);
 
   return NextResponse.json({ ok: true });
 }

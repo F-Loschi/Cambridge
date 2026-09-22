@@ -11,15 +11,18 @@ export function ProfileForm({
   email,
   initialFullName,
   initialExamDate,
+  initialDailyGoal,
 }: {
   userId: string;
   email: string;
   initialFullName: string;
   initialExamDate: string | null;
+  initialDailyGoal: number;
 }) {
   const router = useRouter();
   const [fullName, setFullName] = useState(initialFullName);
   const [examDate, setExamDate] = useState(initialExamDate ?? "");
+  const [dailyGoal, setDailyGoal] = useState(String(initialDailyGoal));
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -30,9 +33,11 @@ export function ProfileForm({
     setError(null);
     const supabase = createClient();
 
+    const goal = Math.min(50, Math.max(1, Number(dailyGoal) || 1));
+
     const { error } = await supabase
       .from("profiles")
-      .update({ full_name: fullName, exam_date: examDate || null })
+      .update({ full_name: fullName, exam_date: examDate || null, daily_goal_questions: goal })
       .eq("id", userId);
 
     setSaving(false);
@@ -40,6 +45,7 @@ export function ProfileForm({
       setError(error.message);
       return;
     }
+    setDailyGoal(String(goal));
     setSavedAt(Date.now());
     router.refresh();
   }
@@ -81,6 +87,19 @@ export function ProfileForm({
             }}
           />
         </div>
+
+        <label className="mb-1 block text-xs font-bold text-muted">Meta diária (questões)</label>
+        <input
+          type="number"
+          min={1}
+          max={50}
+          value={dailyGoal}
+          onChange={(e) => {
+            setDailyGoal(e.target.value);
+            setSavedAt(null);
+          }}
+          className="mb-4 w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm outline-none focus:border-brand"
+        />
 
         <button
           type="submit"
