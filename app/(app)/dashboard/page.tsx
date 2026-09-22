@@ -14,6 +14,8 @@ import { BADGE_DEFS, computeEarnedBadgeIds } from "@/lib/scoring/badges";
 import { StreakFlame } from "@/components/StreakFlame";
 import { SkillRing } from "@/components/SkillRing";
 import { WeeklyInsightCard } from "@/components/WeeklyInsightCard";
+import { ActivityHeatmap } from "@/components/ActivityHeatmap";
+import { TrendChart } from "@/components/TrendChart";
 import { SKILL_META, SKILL_ORDER } from "@/lib/ui/skills";
 
 function toRingPercent(score: number | null): number {
@@ -189,6 +191,15 @@ export default async function DashboardPage() {
             );
           })}
         </div>
+      </section>
+
+      <section className="mb-8">
+        <h2 className="mb-4 text-lg font-extrabold">Evolução</h2>
+        <div className="mb-4 rounded-3xl border border-border bg-surface p-5 shadow-sm">
+          <p className="mb-3 text-xs font-bold text-muted">Atividade nas últimas 12 semanas</p>
+          <ActivityHeatmap activity={activity ?? []} />
+        </div>
+        <TrendChart attempts={attempts ?? []} />
       </section>
 
       <section>
