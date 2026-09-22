@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { Skill } from "@/lib/types/database";
 import { MOCK_EXAM_MINUTES, SKILL_META, SKILL_ORDER } from "@/lib/ui/skills";
 import { PracticeStarter } from "@/components/PracticeStarter";
+import { SpeakingRecorder } from "@/components/SpeakingRecorder";
 import type { RunnerQuestion } from "@/components/QuestionRunner";
 
 export default async function PracticePage({
@@ -45,6 +46,8 @@ export default async function PracticePage({
             Ainda não há questões aprovadas para essa frente. Volte em breve.
           </p>
         </div>
+      ) : skill === "speaking" ? (
+        <SpeakingRecorder questions={questions} />
       ) : (
         <PracticeStarter
           questions={questions as RunnerQuestion[]}
