@@ -2,12 +2,17 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Target, User, Wrench, type LucideIcon } from "lucide-react";
+import { Home, Sparkles, Target, User, Wrench, type LucideIcon } from "lucide-react";
 
 const BASE_LINKS: { href: string; label: string; icon: LucideIcon }[] = [
   { href: "/dashboard", label: "Início", icon: Home },
   { href: "/practice", label: "Praticar", icon: Target },
   { href: "/profile", label: "Perfil", icon: User },
+];
+
+const ADMIN_LINKS: { href: string; label: string; icon: LucideIcon }[] = [
+  { href: "/admin/generate", label: "Gerar", icon: Sparkles },
+  { href: "/admin/review", label: "Revisão", icon: Wrench },
 ];
 
 export function NavLinks({
@@ -18,9 +23,7 @@ export function NavLinks({
   variant: "top" | "bottom";
 }) {
   const pathname = usePathname();
-  const links = isAdmin
-    ? [...BASE_LINKS, { href: "/admin/review", label: "Revisão", icon: Wrench }]
-    : BASE_LINKS;
+  const links = isAdmin ? [...BASE_LINKS, ...ADMIN_LINKS] : BASE_LINKS;
 
   if (variant === "top") {
     return (

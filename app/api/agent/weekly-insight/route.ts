@@ -56,7 +56,8 @@ export async function POST() {
   let text: string;
   try {
     text = await generateWeeklyInsight({ totalAnswered, totalCorrect, errorBreakdown });
-  } catch {
+  } catch (err) {
+    console.error("weekly-insight failed:", err);
     return NextResponse.json({ error: "Falha ao gerar insight" }, { status: 500 });
   }
 

@@ -1,5 +1,5 @@
 import { Type } from "@google/genai";
-import { AGENT_MODEL, getGeminiClient } from "@/lib/agent/client";
+import { AGENT_MODEL, generateContentWithRetry, getGeminiClient } from "@/lib/agent/client";
 import { isAnswerCorrect } from "@/lib/scoring/grading";
 import type { Skill } from "@/lib/types/database";
 
@@ -7,40 +7,80 @@ import type { Skill } from "@/lib/types/database";
 // three independent calls so the model never grades its own generation.
 
 export interface GeneratedQuestion {
-  content: Record<string, unknown>;
+  content: { prompt: string; contextText?: string; options?: string[] };
   correctAnswer: string;
   explanation: string;
   difficultyEstimate: "B2" | "C1" | "C2";
 }
 
-const GENERATED_QUESTION_SCHEMA = {
-  type: Type.OBJECT,
-  properties: {
-    content: { type: Type.OBJECT, properties: {} }, // shape varies by part_type
-    correctAnswer: { type: Type.STRING },
-    explanation: { type: Type.STRING },
-    difficultyEstimate: { type: Type.STRING, enum: ["B2", "C1", "C2"] },
+// The renderer (lib/ui/questionContent.ts) only understands prompt/contextText/
+// options, so the schema — not just prompt wording — has to constrain the
+// model to those exact keys. "multiple_choice" requires options; everything
+// else (open cloze, word formation, key word transformation, short listening
+// answers) is graded as free text against correctAnswer.
+const CONTENT_SCHEMAS = {
+  multiple_choice: {
+    type: Type.OBJECT,
+    properties: {
+      prompt: { type: Type.STRING, description: "The question or gapped sentence shown to the student." },
+      contextText: { type: Type.STRING, description: "Optional short passage/dialogue giving context." },
+      options: {
+        type: Type.ARRAY,
+        items: { type: Type.STRING },
+        description: "Exactly 4 answer choices, one of which is correctAnswer.",
+      },
+    },
+    required: ["prompt", "options"],
   },
-  required: ["content", "correctAnswer", "explanation", "difficultyEstimate"],
-};
+  short_answer: {
+    type: Type.OBJECT,
+    properties: {
+      prompt: { type: Type.STRING, description: "The question or gapped sentence shown to the student." },
+      contextText: { type: Type.STRING, description: "Optional short passage/dialogue giving context." },
+    },
+    required: ["prompt"],
+  },
+} as const;
+
+export type QuestionKind = keyof typeof CONTENT_SCHEMAS;
+
+function buildGeneratedQuestionSchema(kind: QuestionKind) {
+  return {
+    type: Type.OBJECT,
+    properties: {
+      content: CONTENT_SCHEMAS[kind],
+      correctAnswer: { type: Type.STRING },
+      explanation: { type: Type.STRING },
+      difficultyEstimate: { type: Type.STRING, enum: ["B2", "C1", "C2"] },
+    },
+    required: ["content", "correctAnswer", "explanation", "difficultyEstimate"],
+  };
+}
 
 export async function generateQuestion(params: {
   skill: Skill;
   partType: string;
-  calibrationExamples: string[]; // few-shot examples from official Cambridge sample papers
+  kind: QuestionKind;
+  calibrationExamples: string[]; // original examples matching the official style — never real exam text
 }): Promise<GeneratedQuestion> {
   const ai = getGeminiClient();
 
-  const response = await ai.models.generateContent({
+  const response = await generateContentWithRetry(ai, {
     model: AGENT_MODEL,
     config: {
       systemInstruction: `You write original Cambridge C1 Advanced practice questions for part type "${params.partType}".
 Match the format, register and difficulty of the calibration examples exactly, but never reuse
-their wording verbatim.`,
+their wording verbatim. "content.prompt" is the exact text the student sees (the question or the
+gapped sentence, with a blank shown as ___). "content.contextText" is only for a short surrounding
+passage/dialogue when the part type needs one. ${
+        params.kind === "multiple_choice"
+          ? '"content.options" must have exactly 4 plausible choices, one of which equals correctAnswer.'
+          : "correctAnswer must be a single word or short phrase — no options field."
+      }`,
       responseMimeType: "application/json",
-      responseSchema: GENERATED_QUESTION_SCHEMA,
+      responseSchema: buildGeneratedQuestionSchema(params.kind),
     },
-    contents: `Calibration examples (official style reference, do not copy):
+    contents: `Calibration examples (original style reference, do not copy):
 ${params.calibrationExamples.map((e, i) => `Example ${i + 1}:\n${e}`).join("\n\n")}
 
 Generate one new, original question.`,
@@ -58,7 +98,7 @@ export async function blindSolve(params: {
 }): Promise<{ answer: string }> {
   const ai = getGeminiClient();
 
-  const response = await ai.models.generateContent({
+  const response = await generateContentWithRetry(ai, {
     model: AGENT_MODEL,
     config: {
       systemInstruction: `You are a C1 Advanced candidate answering a "${params.partType}" question.`,

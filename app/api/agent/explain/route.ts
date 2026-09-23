@@ -28,7 +28,8 @@ export async function POST(request: Request) {
   try {
     const explanation = await explainAnswer({ partType, prompt, userAnswer, correctAnswer, isCorrect });
     return NextResponse.json({ explanation });
-  } catch {
+  } catch (err) {
+    console.error("explain failed:", err);
     return NextResponse.json({ error: "Falha ao gerar explicação" }, { status: 500 });
   }
 }

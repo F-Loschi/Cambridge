@@ -23,7 +23,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Missing fields" }, { status: 400 });
   }
 
-  const feedback = await correctWriting({ taskPrompt, taskType, candidateText });
+  let feedback;
+  try {
+    feedback = await correctWriting({ taskPrompt, taskType, candidateText });
+  } catch (err) {
+    console.error("correctWriting failed:", err);
+    return NextResponse.json({ error: "Falha ao corrigir a redação" }, { status: 500 });
+  }
 
   const { data: attempt, error } = await supabase
     .from("attempts")

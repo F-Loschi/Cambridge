@@ -30,7 +30,8 @@ export async function POST(request: Request) {
   let feedback;
   try {
     feedback = await gradeSpeaking({ promptText, audioBase64, mimeType });
-  } catch {
+  } catch (err) {
+    console.error("speaking grading failed:", err);
     return NextResponse.json({ error: "Falha ao avaliar a gravação" }, { status: 500 });
   }
 
