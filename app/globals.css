@@ -16,6 +16,10 @@
   --color-teal: #14b8a6;
   --color-danger: #ef4444;
 
+  --color-bronze: #cd7f32; /* streak rank tiers */
+  --color-silver: #94a3b8;
+  --color-gold: #eab308;
+
   --font-sans: var(--font-nunito);
   --font-display: var(--font-baloo);
 }

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Award, CalendarClock, Shield } from "lucide-react";
+import { Award, CalendarClock, Medal, Shield } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { computeStreak } from "@/lib/scoring/streak";
 import {
@@ -11,6 +11,7 @@ import {
 } from "@/lib/scoring/scale";
 import { daysUntilExam } from "@/lib/scoring/examCountdown";
 import { BADGE_DEFS, computeEarnedBadgeIds } from "@/lib/scoring/badges";
+import { rankForStreak } from "@/lib/ui/streakRank";
 import { StreakFlame } from "@/components/StreakFlame";
 import { SkillRing } from "@/components/SkillRing";
 import { WeeklyInsightCard } from "@/components/WeeklyInsightCard";
@@ -77,6 +78,7 @@ export default async function DashboardPage() {
   const goalPercent = Math.min(100, (todayQuestions / dailyGoal) * 100);
   const shields = profile?.streak_shields ?? 0;
 
+  const rank = rankForStreak(streak);
   const totalAnswered = (activity ?? []).reduce((sum, a) => sum + a.questions_answered, 0);
   const earnedBadges = computeEarnedBadgeIds({
     totalAnswered,
@@ -88,7 +90,15 @@ export default async function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
-      <h1 className="mb-6 text-2xl font-extrabold">Olá, {firstName}!</h1>
+      <h1 className="mb-2 text-2xl font-extrabold">Olá, {firstName}!</h1>
+
+      <div
+        className="animate-pop mb-6 inline-flex items-center gap-1.5 rounded-full border px-3 py-1"
+        style={{ borderColor: rank.color, color: rank.color }}
+      >
+        <Medal size={14} strokeWidth={2.5} />
+        <span className="text-xs font-bold">{rank.title}</span>
+      </div>
 
       <Link
         href="/profile"
