@@ -20,9 +20,10 @@ export function checkQuestionFormat(def: PartTypeDef, generated: GeneratedQuesti
     return options.some((o) => isAnswerCorrect(o, correctAnswer));
   }
 
-  // short_answer: open cloze / word formation / listening gap-fill are
-  // always a single word; key word transformation allows a short phrase.
+  // short_answer: each part type declares its own answer-length ceiling
+  // (open cloze/word formation are single words, listening gap-fill allows
+  // up to three per the real exam's "no more than three words" instruction,
+  // key word transformation allows a short phrase).
   const wordCount = correctAnswer.split(/\s+/).length;
-  const maxWords = def.id === "uoe_part4_key_word_transformation" ? 8 : 1;
-  return wordCount <= maxWords;
+  return wordCount <= (def.maxAnswerWords ?? 1);
 }

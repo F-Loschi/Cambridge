@@ -6,6 +6,7 @@ import type { GeneratedQuestion } from "./questionPipeline";
 const mc = findPartType("uoe_part1_multiple_choice_cloze")!;
 const shortAnswer = findPartType("uoe_part2_open_cloze")!;
 const keyWord = findPartType("uoe_part4_key_word_transformation")!;
+const listeningGap = findPartType("listening_part2_sentence_completion")!;
 
 function gen(overrides: Partial<GeneratedQuestion["content"]> & { correctAnswer?: string }): GeneratedQuestion {
   return {
@@ -47,6 +48,11 @@ describe("checkQuestionFormat — short_answer", () => {
   it("allows a short phrase for key word transformation", () => {
     const q = gen({ correctAnswer: "is likely to be delayed" });
     expect(checkQuestionFormat(keyWord, q)).toBe(true);
+  });
+
+  it("allows up to three words for listening sentence completion", () => {
+    expect(checkQuestionFormat(listeningGap, gen({ correctAnswer: "steep ascent" }))).toBe(true);
+    expect(checkQuestionFormat(listeningGap, gen({ correctAnswer: "the steep mountain ascent" }))).toBe(false);
   });
 });
 

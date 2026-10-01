@@ -7,6 +7,8 @@ export interface PartTypeDef {
   label: string;
   kind: QuestionKind;
   calibrationExamples: string[];
+  /** short_answer only: max words allowed in correctAnswer (format-check limit). Ignored for multiple_choice. */
+  maxAnswerWords?: number;
 }
 
 // Auto-generation only covers objectively-gradable part types — Writing and
@@ -31,6 +33,7 @@ Answer: A) explain
     skill: "reading_use_of_english",
     label: "UoE Parte 2 — Open cloze",
     kind: "short_answer",
+    maxAnswerWords: 1,
     calibrationExamples: [
       `Sentence: The meeting has been postponed ___ next Friday due to a scheduling conflict.
 Answer: until
@@ -42,6 +45,7 @@ Answer: until
     skill: "reading_use_of_english",
     label: "UoE Parte 3 — Word formation",
     kind: "short_answer",
+    maxAnswerWords: 1,
     calibrationExamples: [
       `Sentence: The committee praised her for her ___ in handling the crisis. (DECISIVE)
 Answer: decisiveness
@@ -53,6 +57,7 @@ Answer: decisiveness
     skill: "reading_use_of_english",
     label: "UoE Parte 4 — Key word transformation",
     kind: "short_answer",
+    maxAnswerWords: 8,
     calibrationExamples: [
       `Original sentence: "It's possible that the flight will be delayed because of the storm."
 Keyword: LIKELY
@@ -90,11 +95,12 @@ Answer: B`,
     skill: "listening",
     label: "Listening Parte 2 — Sentence completion",
     kind: "short_answer",
+    maxAnswerWords: 3,
     calibrationExamples: [
       `Context (what the speaker says, as contextText): "...and the tour will begin promptly at the main entrance, so please arrive at least fifteen minutes early."
 Gap sentence (prompt): Visitors should arrive at the main entrance ___ minutes before the tour starts.
 Answer: fifteen
-(The answer is always one word or a short number/phrase, taken from what was "said".)`,
+(The answer is always taken verbatim from what was "said" — no more than three words.)`,
     ],
   },
 ];
