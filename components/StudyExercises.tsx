@@ -6,17 +6,17 @@ import { QuestionRunner, type RunnerQuestion } from "@/components/QuestionRunner
 
 export function StudyExercises({
   questions,
-  partTypeId,
+  returnHref,
 }: {
   questions: RunnerQuestion[];
-  partTypeId: string;
+  returnHref: string;
 }) {
   const [started, setStarted] = useState(false);
 
   if (questions.length === 0) {
     return (
       <p className="rounded-3xl border border-dashed border-border p-6 text-center text-sm text-muted">
-        Ainda não há exercícios de treino pra essa parte. Volte em breve.
+        Ainda não há exercícios de treino aqui. Volte em breve.
       </p>
     );
   }
@@ -38,7 +38,8 @@ export function StudyExercises({
     <QuestionRunner
       questions={questions}
       submitUrl="/api/attempts/submit"
-      onFinishHref={`/study/${partTypeId}`}
+      onFinishHref={returnHref}
+      source="training"
     />
   );
 }

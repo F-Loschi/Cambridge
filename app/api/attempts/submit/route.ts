@@ -26,7 +26,7 @@ export async function POST(request: Request) {
 
   const { items, source } = (await request.json()) as {
     items: SubmittedItem[];
-    source?: "practice" | "mock_test";
+    source?: "practice" | "mock_test" | "training";
   };
   if (!items?.length) {
     return NextResponse.json({ error: "No items" }, { status: 400 });
@@ -40,9 +40,14 @@ export async function POST(request: Request) {
 
   for (const [skill, skillItems] of bySkill) {
     const correctCount = skillItems.filter((i) => i.correct).length;
+    // Training exercises are deliberately easier than the exam, so they
+    // count toward the streak and daily goal but not toward the skill
+    // scores the dashboard averages (null scaled_score is skipped).
     const scaledScore =
-      CAMBRIDGE_SCALE.min +
-      (correctCount / skillItems.length) * (CAMBRIDGE_SCALE.max - CAMBRIDGE_SCALE.min);
+      source === "training"
+        ? null
+        : CAMBRIDGE_SCALE.min +
+          (correctCount / skillItems.length) * (CAMBRIDGE_SCALE.max - CAMBRIDGE_SCALE.min);
 
     const { data: attempt, error: attemptError } = await supabase
       .from("attempts")

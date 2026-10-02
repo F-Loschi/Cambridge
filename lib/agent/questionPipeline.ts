@@ -58,7 +58,7 @@ function buildGeneratedQuestionSchema(kind: QuestionKind) {
 }
 
 // For the study section: same format as the real part, but gentler.
-const TRAINING_RULE = `Write a TRAINING exercise: exactly the same format as the calibration examples but noticeably easier than the real exam (about B2 level): shorter text, common vocabulary, ONE clear language point per item, and distractors that are clearly wrong once the point is understood. Never reuse the calibration wording verbatim. Set difficultyEstimate to "B2".`;
+const TRAINING_RULE = `Write a TRAINING exercise: exactly the same format as the calibration examples but noticeably easier than the real exam (about B2 level): shorter text, common vocabulary, ONE clear language point per item, and distractors that are clearly wrong once the point is understood. Exactly ONE option may be acceptable in the sentence: never use a near-synonym or variant that would also work (e.g. large/big crowd, dug up/dug out), and check each distractor yourself before answering. The gap must leave a grammatical sentence with the answer in it (never repeat a word that comes right after the gap). Never reuse the calibration wording verbatim. Set difficultyEstimate to "B2".`;
 
 // Independent generation calls collapse onto the same scenario (three
 // near-identical "Had it not been for the weather" items in one batch), so

@@ -40,7 +40,7 @@ export function QuestionRunner({
   questions: RunnerQuestion[];
   submitUrl: string;
   onFinishHref: string;
-  source?: "practice" | "mock_test";
+  source?: "practice" | "mock_test" | "training";
   timeLimitSeconds?: number;
   /** Off for the spaced-repetition queue, where due-date order is intentional. */
   shuffleQuestions?: boolean;

@@ -113,7 +113,10 @@ export default async function StudyPartPage({ params }: { params: Promise<{ part
 
         <div className="mt-2">
           <h2 className="mb-3 text-sm font-extrabold">Exercícios guiados</h2>
-          <StudyExercises questions={(exercises ?? []) as RunnerQuestion[]} partTypeId={partTypeId} />
+          <StudyExercises
+            questions={(exercises ?? []) as RunnerQuestion[]}
+            returnHref={`/study/${partTypeId}`}
+          />
         </div>
       </div>
     </div>

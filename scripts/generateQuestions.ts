@@ -7,6 +7,9 @@
  * Usage: npm run generate-questions -- [countPerPartType] [partTypeId] [--training]
  *   --training  easier B2-level exercises for the study section (needs the
  *               question_bank.training column)
+ *   --topics    exercises for the language topics (collocations, phrasal
+ *               verbs, ...) instead of the exam parts; implies --training.
+ *               partTypeId is then e.g. topic_collocations
  *   npm run generate-questions -- 3            # 3 of every part type
  *   npm run generate-questions -- 5 uoe_part2_open_cloze
  */
@@ -34,12 +37,13 @@ function loadEnvLocal() {
 loadEnvLocal();
 
 import { AGENT_MODEL } from "../lib/agent/client";
-import { PART_TYPES, findPartType } from "../lib/agent/partTypeCatalog";
+import { PART_TYPES, type PartTypeDef } from "../lib/agent/partTypeCatalog";
+import { TOPICS, topicExerciseDef } from "../lib/study/topics";
 import { auditQuestion, blindSolve, generateQuestion } from "../lib/agent/questionPipeline";
 import { checkQuestionFormat } from "../lib/agent/questionFormat";
 import { createAdminClient } from "../lib/supabase/admin";
 
-async function generateOne(partType: (typeof PART_TYPES)[number], training: boolean) {
+async function generateOne(partType: PartTypeDef, training: boolean) {
   const generated = await generateQuestion({
     skill: partType.skill,
     partType: partType.id,
@@ -81,13 +85,14 @@ async function generateOne(partType: (typeof PART_TYPES)[number], training: bool
 }
 
 async function main() {
-  const training = process.argv.includes("--training");
+  const topics = process.argv.includes("--topics");
+  // Topic exercises are always the easier training kind.
+  const training = topics || process.argv.includes("--training");
+  const pool: PartTypeDef[] = topics ? TOPICS.map(topicExerciseDef) : PART_TYPES;
   const positional = process.argv.slice(2).filter((a) => !a.startsWith("--"));
   const countPerType = Number(positional[0] ?? 3);
   const onlyPartTypeId = positional[1];
-  const partTypes = onlyPartTypeId
-    ? [findPartType(onlyPartTypeId)].filter((p): p is NonNullable<typeof p> => p != null)
-    : PART_TYPES;
+  const partTypes = onlyPartTypeId ? pool.filter((p) => p.id === onlyPartTypeId) : pool;
 
   if (onlyPartTypeId && partTypes.length === 0) {
     console.error(`Unknown part_type: ${onlyPartTypeId}`);
