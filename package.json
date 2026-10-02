@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "generate-questions": "tsx scripts/generateQuestions.ts"
+    "generate-questions": "tsx scripts/generateQuestions.ts",
+    "seed-speaking": "tsx scripts/seedSpeakingPrompts.ts"
   },
   "dependencies": {
     "@google/genai": "^2.22.0",
