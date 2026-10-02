@@ -1,19 +1,7 @@
-import { synthesizeSpeech } from "@/lib/agent/synthesizeSpeech";
+import { synthesizeSpeech, TtsQuotaExhaustedError } from "@/lib/agent/synthesizeSpeech";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 const BUCKET = "listening-audio";
-
-async function synthesizeWithRateLimitRetry(text: string, attempts = 4): Promise<Buffer> {
-  for (let attempt = 1; ; attempt++) {
-    try {
-      return await synthesizeSpeech(text);
-    } catch (err) {
-      const status = (err as { status?: number }).status;
-      if (status !== 429 || attempt >= attempts) throw err;
-      await new Promise((r) => setTimeout(r, 65_000)); // per-minute quota window
-    }
-  }
-}
 
 /**
  * Generates and stores audio for every approved Listening question that
@@ -41,7 +29,7 @@ export async function backfillListeningAudio(log: (msg: string) => void = consol
   for (const q of pending) {
     const content = q.content as { contextText: string };
     try {
-      const wav = await synthesizeWithRateLimitRetry(content.contextText);
+      const wav = await synthesizeSpeech(content.contextText);
       const path = `${q.id}.wav`;
 
       const { error: uploadError } = await supabase.storage
@@ -59,6 +47,10 @@ export async function backfillListeningAudio(log: (msg: string) => void = consol
       done++;
       log(`audio ${done}/${pending.length} ok (${Math.round(wav.length / 1024)} KB)`);
     } catch (err) {
+      if (err instanceof TtsQuotaExhaustedError) {
+        log(`${err.message}. ${pending.length - done - failed} question(s) left — re-run npm run backfill-audio later.`);
+        break;
+      }
       failed++;
       log(`audio FAILED for ${q.id}: ${err instanceof Error ? err.message.slice(0, 160) : err}`);
     }
