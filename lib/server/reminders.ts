@@ -52,7 +52,10 @@ export async function sendReminderEmail(to: string, body: string): Promise<void>
       from: "Cambridge C1 Prep <onboarding@resend.dev>",
       to,
       subject: "Hora de praticar seu inglês",
-      html: `<p>${body}</p>`,
+      // Without an explicit charset meta tag, some email clients (Gmail
+      // included) guess the wrong encoding and mangle accented characters.
+      html: `<!doctype html><html><head><meta charset="utf-8"></head><body><p>${body}</p></body></html>`,
+      text: body,
     }),
   });
 
