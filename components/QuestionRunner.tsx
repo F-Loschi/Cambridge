@@ -1,10 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, Clock, Sparkles, XCircle } from "lucide-react";
 import { isAnswerCorrect } from "@/lib/scoring/grading";
 import { readQuestionContent } from "@/lib/ui/questionContent";
+import { shuffle } from "@/lib/ui/shuffle";
 import { formatMMSS } from "@/lib/ui/time";
 import { SKILL_META } from "@/lib/ui/skills";
 import type { Skill } from "@/lib/types/database";
@@ -32,14 +33,20 @@ export function QuestionRunner({
   onFinishHref,
   source = "practice",
   timeLimitSeconds,
+  shuffleQuestions = true,
 }: {
   questions: RunnerQuestion[];
   submitUrl: string;
   onFinishHref: string;
   source?: "practice" | "mock_test";
   timeLimitSeconds?: number;
+  /** Off for the spaced-repetition queue, where due-date order is intentional. */
+  shuffleQuestions?: boolean;
 }) {
   const router = useRouter();
+  // Randomized once per mount, not on every render, so re-doing a finished
+  // lesson gets a fresh order instead of the same sequence every time.
+  const [orderedQuestions] = useState(() => (shuffleQuestions ? shuffle(questions) : questions));
   const [index, setIndex] = useState(0);
   const [answer, setAnswer] = useState("");
   const [revealed, setRevealed] = useState(false);
@@ -51,9 +58,16 @@ export function QuestionRunner({
   const [explanation, setExplanation] = useState<string | null>(null);
   const [explaining, setExplaining] = useState(false);
 
-  const finished = index >= questions.length;
-  const current = !finished ? questions[index] : null;
+  const finished = index >= orderedQuestions.length;
+  const current = !finished ? orderedQuestions[index] : null;
   const parsed = current ? readQuestionContent(current.content) : null;
+  // Shuffled once per question (stable across re-renders of the same
+  // question, e.g. while the user is still picking an answer) rather than
+  // on every render, which would otherwise re-shuffle on each keystroke/tick.
+  const shuffledOptions = useMemo(() => {
+    const options = current ? readQuestionContent(current.content).options : undefined;
+    return options ? shuffle(options) : undefined;
+  }, [current]);
 
   const handleFinish = useCallback(
     async (finalResults: ResultItem[]) => {
@@ -92,7 +106,7 @@ export function QuestionRunner({
       }
 
       const answeredFrom = index + (revealed ? 1 : 0);
-      const skipped: ResultItem[] = questions.slice(answeredFrom).map((q, offset) => ({
+      const skipped: ResultItem[] = orderedQuestions.slice(answeredFrom).map((q, offset) => ({
         question_id: q.id,
         skill: q.skill,
         question_number: answeredFrom + offset + 1,
@@ -104,13 +118,13 @@ export function QuestionRunner({
 
       setTimedOut(true);
       setResults(finalResults);
-      setIndex(questions.length);
+      setIndex(orderedQuestions.length);
       setRemaining(0);
       void handleFinish(finalResults);
     }, 1000);
 
     return () => clearInterval(id);
-  }, [timeLimitSeconds, finished, remaining, index, revealed, results, questions, handleFinish]);
+  }, [timeLimitSeconds, finished, remaining, index, revealed, results, orderedQuestions, handleFinish]);
 
   function handleCheck() {
     if (!current || !answer.trim()) return;
@@ -201,7 +215,7 @@ export function QuestionRunner({
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <p className="text-xs font-bold text-muted">
-          Questão {index + 1} de {questions.length} · {meta.short} · {current.part_type}
+          Questão {index + 1} de {orderedQuestions.length} · {meta.short} · {current.part_type}
         </p>
         {timerLabel}
       </div>
@@ -212,9 +226,9 @@ export function QuestionRunner({
         )}
         <p className="mb-4 text-base font-bold">{parsed.prompt ?? "(pergunta sem texto)"}</p>
 
-        {parsed.options ? (
+        {shuffledOptions ? (
           <div className="flex flex-col gap-2">
-            {parsed.options.map((opt) => {
+            {shuffledOptions.map((opt) => {
               const isSelected = answer === opt;
               const isCorrectOpt = revealed && isAnswerCorrect(opt, current.correct_answer);
               const isWrongSelected = revealed && isSelected && !isCorrectOpt;
@@ -287,7 +301,7 @@ export function QuestionRunner({
           onClick={handleNext}
           className="rounded-2xl bg-brand px-4 py-3 text-sm font-extrabold text-white shadow-sm transition-transform hover:-translate-y-0.5"
         >
-          {index + 1 === questions.length ? "Ver resultado" : "Próxima"}
+          {index + 1 === orderedQuestions.length ? "Ver resultado" : "Próxima"}
         </button>
       ) : (
         <button

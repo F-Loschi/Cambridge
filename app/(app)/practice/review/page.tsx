@@ -55,6 +55,7 @@ export default async function ReviewPage() {
           questions={questions as RunnerQuestion[]}
           submitUrl="/api/review/submit"
           onFinishHref="/practice"
+          shuffleQuestions={false}
         />
       )}
     </div>

@@ -51,6 +51,7 @@ describe("QuestionRunner mock-mode timeout", () => {
         onFinishHref="/practice"
         source="mock_test"
         timeLimitSeconds={2}
+        shuffleQuestions={false}
       />,
     );
 
