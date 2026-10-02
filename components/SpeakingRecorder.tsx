@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Mic, RotateCcw, Send, Sparkles, Square } from "lucide-react";
+import { RichText } from "@/components/RichText";
 import { formatMMSS } from "@/lib/ui/time";
 import type { SpeakingFeedback } from "@/lib/agent/gradeSpeaking";
 
@@ -160,7 +161,9 @@ export function SpeakingRecorder({ questions }: { questions: SpeakingQuestion[] 
               <p className="mb-1 text-xs font-bold text-success">Pontos fortes</p>
               <ul className="list-disc pl-4 text-sm">
                 {feedback.strengths.map((s, i) => (
-                  <li key={i}>{s}</li>
+                  <li key={i}>
+                    <RichText text={s} />
+                  </li>
                 ))}
               </ul>
             </div>
@@ -171,7 +174,9 @@ export function SpeakingRecorder({ questions }: { questions: SpeakingQuestion[] 
               <p className="mb-1 text-xs font-bold text-danger">Pra melhorar</p>
               <ul className="list-disc pl-4 text-sm">
                 {feedback.improvements.map((s, i) => (
-                  <li key={i}>{s}</li>
+                  <li key={i}>
+                    <RichText text={s} />
+                  </li>
                 ))}
               </ul>
             </div>

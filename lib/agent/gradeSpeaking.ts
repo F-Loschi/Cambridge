@@ -1,5 +1,5 @@
 import { Type } from "@google/genai";
-import { AGENT_MODEL, generateContentWithRetry, getGeminiClient } from "@/lib/agent/client";
+import { AGENT_MODEL, generateContentWithRetry, getGeminiClient, PLAIN_TEXT_RULE } from "@/lib/agent/client";
 
 // Long-turn (monologue) Speaking practice — no interlocutor, so we grade on
 // the three axes that don't require a conversation partner. Real CAE
@@ -54,7 +54,8 @@ export async function gradeSpeaking(params: {
   const response = await generateContentWithRetry(ai, {
     model: AGENT_MODEL,
     config: {
-      systemInstruction: SYSTEM_PROMPT,
+      systemInstruction: `${SYSTEM_PROMPT}
+${PLAIN_TEXT_RULE}`,
       responseMimeType: "application/json",
       responseSchema: RESPONSE_SCHEMA,
     },

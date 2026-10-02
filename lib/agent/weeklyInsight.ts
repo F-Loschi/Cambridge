@@ -1,4 +1,4 @@
-import { AGENT_MODEL, generateContentWithRetry, getGeminiClient } from "@/lib/agent/client";
+import { AGENT_MODEL, generateContentWithRetry, getGeminiClient, PLAIN_TEXT_RULE } from "@/lib/agent/client";
 
 export interface ErrorBreakdownEntry {
   skill: string;
@@ -25,7 +25,8 @@ export async function generateWeeklyInsight(params: {
   const ai = getGeminiClient();
   const response = await generateContentWithRetry(ai, {
     model: AGENT_MODEL,
-    config: { systemInstruction: SYSTEM_PROMPT },
+    config: { systemInstruction: `${SYSTEM_PROMPT}
+${PLAIN_TEXT_RULE}` },
     contents: `Últimos 7 dias: ${params.totalCorrect}/${params.totalAnswered} respostas corretas.
 Erros por frente / tipo de questão:
 ${

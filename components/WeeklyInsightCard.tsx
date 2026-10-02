@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { RefreshCw, Sparkles } from "lucide-react";
+import { RichText } from "@/components/RichText";
 
 const STALE_AFTER_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -52,7 +53,9 @@ export function WeeklyInsightCard({
       </div>
 
       {text ? (
-        <p className="text-sm text-foreground">{text}</p>
+        <p className="text-sm text-foreground">
+          <RichText text={text} />
+        </p>
       ) : (
         <p className="text-sm text-muted">
           Responda algumas questões e gere seu primeiro insight da semana.

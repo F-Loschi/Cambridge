@@ -1,5 +1,5 @@
 import { Type } from "@google/genai";
-import { AGENT_MODEL, generateContentWithRetry, getGeminiClient } from "@/lib/agent/client";
+import { AGENT_MODEL, generateContentWithRetry, getGeminiClient, PLAIN_TEXT_RULE } from "@/lib/agent/client";
 
 // C1 Advanced Writing is graded on these four criteria, 0-5 each.
 export interface WritingFeedback {
@@ -62,7 +62,8 @@ export async function correctWriting(params: {
   const response = await generateContentWithRetry(ai, {
     model: AGENT_MODEL,
     config: {
-      systemInstruction: SYSTEM_PROMPT,
+      systemInstruction: `${SYSTEM_PROMPT}
+${PLAIN_TEXT_RULE}`,
       responseMimeType: "application/json",
       responseSchema: RESPONSE_SCHEMA,
     },

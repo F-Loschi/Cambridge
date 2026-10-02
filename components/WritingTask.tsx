@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, PenLine, Sparkles } from "lucide-react";
+import { RichText } from "@/components/RichText";
 import type { WritingTaskType } from "@/lib/agent/generateWritingTask";
 import { WRITING_TASK_LABELS } from "@/lib/agent/generateWritingTask";
 import type { WritingFeedback } from "@/lib/agent/correctWriting";
@@ -99,7 +100,9 @@ export function WritingTask() {
             <p className="mb-1 text-xs font-bold text-success">Pontos fortes</p>
             <ul className="list-disc pl-4 text-sm">
               {feedback.strengths.map((s, i) => (
-                <li key={i}>{s}</li>
+                <li key={i}>
+                    <RichText text={s} />
+                  </li>
               ))}
             </ul>
           </div>
@@ -110,7 +113,9 @@ export function WritingTask() {
             <p className="mb-1 text-xs font-bold text-danger">Pra melhorar</p>
             <ul className="list-disc pl-4 text-sm">
               {feedback.improvements.map((s, i) => (
-                <li key={i}>{s}</li>
+                <li key={i}>
+                    <RichText text={s} />
+                  </li>
               ))}
             </ul>
           </div>
@@ -123,8 +128,12 @@ export function WritingTask() {
               {feedback.annotatedErrors.map((e, i) => (
                 <div key={i} className="rounded-2xl bg-background p-3 text-sm">
                   <p className="font-bold text-danger">&ldquo;{e.quote}&rdquo;</p>
-                  <p className="text-muted">{e.issue}</p>
-                  <p className="text-success">{e.suggestion}</p>
+                  <p className="text-muted">
+                    <RichText text={e.issue} />
+                  </p>
+                  <p className="text-success">
+                    <RichText text={e.suggestion} />
+                  </p>
                 </div>
               ))}
             </div>

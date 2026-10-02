@@ -1,4 +1,4 @@
-import { AGENT_MODEL, generateContentWithRetry, getGeminiClient } from "@/lib/agent/client";
+import { AGENT_MODEL, generateContentWithRetry, getGeminiClient, PLAIN_TEXT_RULE } from "@/lib/agent/client";
 
 const SYSTEM_PROMPT = `You are a friendly Cambridge C1 Advanced English tutor.
 A student just answered a practice question. Explain, in Portuguese (pt-BR),
@@ -18,7 +18,8 @@ export async function explainAnswer(params: {
 
   const response = await generateContentWithRetry(ai, {
     model: AGENT_MODEL,
-    config: { systemInstruction: SYSTEM_PROMPT },
+    config: { systemInstruction: `${SYSTEM_PROMPT}
+${PLAIN_TEXT_RULE}` },
     contents: `Tipo de questão: ${params.partType}
 Enunciado: """${params.prompt}"""
 Resposta do aluno: "${params.userAnswer}"

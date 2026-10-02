@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { CheckCircle2, Clock, Sparkles, XCircle } from "lucide-react";
 import { isAnswerCorrect } from "@/lib/scoring/grading";
 import { ListeningAudio } from "@/components/ListeningAudio";
+import { RichText } from "@/components/RichText";
 import { readQuestionContent } from "@/lib/ui/questionContent";
 import { shuffle } from "@/lib/ui/shuffle";
 import { formatMMSS } from "@/lib/ui/time";
@@ -299,7 +300,9 @@ export function QuestionRunner({
         {explanation && (
           <div className="mt-3 flex items-start gap-2 rounded-2xl bg-violet/10 p-3 text-sm text-foreground">
             <Sparkles size={16} className="mt-0.5 shrink-0 text-violet" />
-            <p>{explanation}</p>
+            <p>
+              <RichText text={explanation} />
+            </p>
           </div>
         )}
       </div>

@@ -49,3 +49,8 @@ export async function generateContentWithRetry(
 // `curl https://generativelanguage.googleapis.com/v1beta/models?key=$GEMINI_API_KEY`
 // if this ever 404s again, since the model lineup moves fast.
 export const AGENT_MODEL = "gemini-3.5-flash-lite";
+
+// The UI shows model text as-is (plus RichText as a safety net), so ask for
+// plain text — models still slip markdown in despite this.
+export const PLAIN_TEXT_RULE =
+  "Formatting: plain text only. Never use markdown — no asterisks, underscores, backticks, # headings or bullet symbols. Write words normally, with no emphasis markup.";

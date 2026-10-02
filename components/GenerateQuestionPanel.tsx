@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, Loader2, Sparkles } from "lucide-react";
+import { RichText } from "@/components/RichText";
 import { PART_TYPES } from "@/lib/agent/partTypeCatalog";
 import { SKILL_META } from "@/lib/ui/skills";
 import type { QuestionBankItem } from "@/lib/types/database";
@@ -116,7 +117,11 @@ export function GenerateQuestionPanel() {
           <p className="text-xs text-muted">
             Resposta: <span className="font-bold text-foreground">{lastResult.correct_answer}</span>
           </p>
-          {lastResult.explanation && <p className="mt-2 text-xs text-muted">{lastResult.explanation}</p>}
+          {lastResult.explanation && (
+            <p className="mt-2 text-xs text-muted">
+              <RichText text={lastResult.explanation} />
+            </p>
+          )}
         </div>
       )}
     </div>
