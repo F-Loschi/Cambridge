@@ -7,40 +7,38 @@
   --color-muted: var(--muted);
   --color-border: var(--border);
 
-  --color-brand: #4f46e5; /* indigo — primary/CTA */
-  --color-brand-dark: #3730a3;
-  --color-success: #22c55e; /* green — correct/approved */
-  --color-streak: #ff9500; /* orange — streak flame */
-  --color-streak-hot: #ff5a1f;
-  --color-violet: #a855f7;
-  --color-teal: #14b8a6;
-  --color-danger: #ef4444;
+  --color-brand: #6c7fb8; /* soft dusty indigo — primary/CTA */
+  --color-brand-dark: #4f5f94;
+  --color-success: #7fa66b; /* soft sage — correct/approved */
+  --color-streak: #e3a542; /* soft honey — streak flame */
+  --color-streak-hot: #c9792a;
+  --color-violet: #a48bc9;
+  --color-teal: #5fa39a;
+  --color-danger: #c66b63;
 
-  --color-bronze: #cd7f32; /* streak rank tiers */
-  --color-silver: #94a3b8;
-  --color-gold: #eab308;
+  --color-bronze: #b98a5e; /* streak rank tiers */
+  --color-silver: #a8a29a;
+  --color-gold: #d4a94a;
 
   --font-sans: var(--font-nunito);
   --font-display: var(--font-baloo);
 }
 
 :root {
-  --background: #f7f8fc;
-  --surface: #ffffff;
-  --foreground: #1b1b2f;
-  --muted: #6b7089;
-  --border: #e7e8f3;
-  --blob-strength: 16%;
+  --background: #f6efe4;
+  --surface: #fffcf7;
+  --foreground: #3c352c;
+  --muted: #8c8172;
+  --border: #e8dfd0;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #14141f;
-    --surface: #1e1e2e;
-    --foreground: #f1f1fb;
-    --muted: #9498b3;
-    --border: #2c2c40;
-    --blob-strength: 22%;
+    --background: #221f1a;
+    --surface: #2d2a24;
+    --foreground: #f3ece0;
+    --muted: #a79b89;
+    --border: #3d392f;
   }
 }
 
@@ -48,29 +46,6 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
   background-color: var(--background);
-  background-image:
-    radial-gradient(
-      1000px circle at 8% -15%,
-      color-mix(in srgb, var(--color-brand) var(--blob-strength), transparent),
-      transparent 72%
-    ),
-    radial-gradient(
-      900px circle at 105% -5%,
-      color-mix(in srgb, var(--color-streak) var(--blob-strength), transparent),
-      transparent 70%
-    ),
-    radial-gradient(
-      950px circle at 95% 105%,
-      color-mix(in srgb, var(--color-teal) var(--blob-strength), transparent),
-      transparent 70%
-    ),
-    radial-gradient(
-      800px circle at -5% 100%,
-      color-mix(in srgb, var(--color-violet) var(--blob-strength), transparent),
-      transparent 70%
-    );
-  background-repeat: no-repeat;
-  background-attachment: fixed;
 }
 
 h1,
