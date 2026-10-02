@@ -24,13 +24,13 @@ export function ReminderSettings({
     typeof window !== "undefined" && "serviceWorker" in navigator && "PushManager" in window;
 
   async function enablePush() {
-    setError(null);
     if (Notification.permission === "denied") {
-      setError("Notificações estão bloqueadas nas configurações do navegador.");
-      return;
+      throw new Error("Notificações estão bloqueadas nas configurações do navegador.");
     }
     const permission = await Notification.requestPermission();
-    if (permission !== "granted") return;
+    if (permission !== "granted") {
+      throw new Error("Permissão de notificação não concedida.");
+    }
 
     const registration = await navigator.serviceWorker.register("/sw.js");
     await navigator.serviceWorker.ready;

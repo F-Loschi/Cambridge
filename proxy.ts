@@ -55,8 +55,13 @@ export async function proxy(request: NextRequest) {
   return response;
 }
 
+// Every API route already does its own supabase.auth.getUser() check and
+// returns 401 itself (the admin one also checks role) — so /api is excluded
+// here rather than redirected to /login. That redirect was actively wrong
+// for the cron route in particular: Vercel calls it with no Supabase session
+// cookie at all, by design, so it never reached the CRON_SECRET check.
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
