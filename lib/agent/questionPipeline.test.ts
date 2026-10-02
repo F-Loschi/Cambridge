@@ -12,6 +12,15 @@ describe("auditQuestion", () => {
     expect(result.notes).toHaveLength(0);
   });
 
+  it("treats an option with and without its letter prefix as the same choice", () => {
+    const result = auditQuestion({
+      generatorAnswer: "B) It tends to alternate between views.",
+      blindSolverAnswer: "It tends to alternate between views.",
+      formatChecksPassed: true,
+    });
+    expect(result.status).toBe("approved");
+  });
+
   it("flags for human review when the blind solver disagrees", () => {
     const result = auditQuestion({
       generatorAnswer: "had been",

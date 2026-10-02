@@ -137,7 +137,13 @@ export function auditQuestion(params: {
 }): AuditResult {
   const notes: string[] = [];
 
-  const answersAgree = isAnswerCorrect(params.generatorAnswer, params.blindSolverAnswer);
+  // Options sometimes carry an "A) " prefix and the solver may or may not
+  // echo it back; the choice is the same either way.
+  const stripLetter = (s: string) => s.trim().replace(/^[A-D][).]\s+/i, "");
+  const answersAgree = isAnswerCorrect(
+    stripLetter(params.generatorAnswer),
+    stripLetter(params.blindSolverAnswer),
+  );
 
   if (!answersAgree) {
     notes.push(

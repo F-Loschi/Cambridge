@@ -104,7 +104,9 @@ async function main() {
         failed++;
         console.log("FAILED —", err instanceof Error ? err.message : err);
       }
-      await new Promise((r) => setTimeout(r, 1000));
+      // Free tier allows 15 requests/min per model and each question costs
+      // 2 (generate + blind solve), so stay under ~7 questions a minute.
+      await new Promise((r) => setTimeout(r, 9000));
     }
   }
 
