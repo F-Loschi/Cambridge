@@ -97,11 +97,16 @@ export async function blindSolve(params: {
   content: Record<string, unknown>;
 }): Promise<{ answer: string }> {
   const ai = getGeminiClient();
+  const isMultipleChoice = Array.isArray(params.content.options);
 
   const response = await generateContentWithRetry(ai, {
     model: AGENT_MODEL,
     config: {
-      systemInstruction: `You are a C1 Advanced candidate answering a "${params.partType}" question.`,
+      systemInstruction: `You are a C1 Advanced candidate answering a "${params.partType}" question.${
+        isMultipleChoice
+          ? ' Reply with the exact text of the one option you choose, copied verbatim from the "options" array — never just its letter, never paraphrased.'
+          : ""
+      }`,
       responseMimeType: "application/json",
       responseSchema: {
         type: Type.OBJECT,
