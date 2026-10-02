@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, Clock, Sparkles, XCircle } from "lucide-react";
 import { isAnswerCorrect } from "@/lib/scoring/grading";
+import { ListeningAudio } from "@/components/ListeningAudio";
 import { readQuestionContent } from "@/lib/ui/questionContent";
 import { shuffle } from "@/lib/ui/shuffle";
 import { formatMMSS } from "@/lib/ui/time";
@@ -221,9 +222,12 @@ export function QuestionRunner({
       </div>
 
       <div className="rounded-3xl border border-border bg-surface p-5 shadow-sm">
-        {parsed.contextText && (
-          <p className="mb-4 rounded-2xl bg-background p-4 text-sm text-muted">{parsed.contextText}</p>
-        )}
+        {parsed.contextText &&
+          (current.skill === "listening" ? (
+            <ListeningAudio key={current.id} text={parsed.contextText} revealed={revealed} />
+          ) : (
+            <p className="mb-4 rounded-2xl bg-background p-4 text-sm text-muted">{parsed.contextText}</p>
+          ))}
         <p className="mb-4 text-base font-bold">{parsed.prompt ?? "(pergunta sem texto)"}</p>
 
         {shuffledOptions ? (
