@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { correctWriting } from "@/lib/agent/correctWriting";
+import { CAMBRIDGE_SCALE } from "@/lib/scoring/scale";
+import { reconcileGamification } from "@/lib/server/gamification";
+
+const OVERALL_MAX = 20;
 
 export async function POST(request: Request) {
   const supabase = await createClient();
@@ -31,6 +35,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Falha ao corrigir a redação" }, { status: 500 });
   }
 
+  const scaledScore =
+    CAMBRIDGE_SCALE.min +
+    (feedback.overallOutOf20 / OVERALL_MAX) * (CAMBRIDGE_SCALE.max - CAMBRIDGE_SCALE.min);
+
   const { data: attempt, error } = await supabase
     .from("attempts")
     .insert({
@@ -39,6 +47,7 @@ export async function POST(request: Request) {
       source: "writing_task",
       finished_at: new Date().toISOString(),
       raw_score: feedback.overallOutOf20,
+      scaled_score: scaledScore,
       ai_feedback: feedback,
     })
     .select()
@@ -47,6 +56,8 @@ export async function POST(request: Request) {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  await reconcileGamification(supabase, user.id, 1);
 
   return NextResponse.json({ attempt, feedback });
 }

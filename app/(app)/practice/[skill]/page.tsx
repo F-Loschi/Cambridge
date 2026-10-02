@@ -6,6 +6,7 @@ import type { Skill } from "@/lib/types/database";
 import { MOCK_EXAM_MINUTES, SKILL_META, SKILL_ORDER } from "@/lib/ui/skills";
 import { PracticeStarter } from "@/components/PracticeStarter";
 import { SpeakingRecorder } from "@/components/SpeakingRecorder";
+import { WritingTask } from "@/components/WritingTask";
 import type { RunnerQuestion } from "@/components/QuestionRunner";
 
 export default async function PracticePage({
@@ -18,16 +19,9 @@ export default async function PracticePage({
 
   const meta = SKILL_META[skill as Skill];
   const Icon = meta.icon;
-  const supabase = await createClient();
-  const { data: questions } = await supabase
-    .from("question_bank")
-    .select("id, skill, part_type, content, correct_answer")
-    .eq("skill", skill)
-    .eq("status", "approved")
-    .limit(10);
 
-  return (
-    <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
+  const header = (
+    <>
       <Link
         href="/practice"
         className="mb-4 inline-flex items-center gap-1 text-sm font-bold text-muted"
@@ -38,6 +32,32 @@ export default async function PracticePage({
         <Icon size={24} strokeWidth={2.25} style={{ color: meta.color }} />
         {meta.label}
       </h1>
+    </>
+  );
+
+  // Writing is rubric-graded (not an objectively-gradable question bank
+  // part type), so it generates its own task on demand instead of reading
+  // from question_bank like every other skill.
+  if (skill === "writing") {
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
+        {header}
+        <WritingTask />
+      </div>
+    );
+  }
+
+  const supabase = await createClient();
+  const { data: questions } = await supabase
+    .from("question_bank")
+    .select("id, skill, part_type, content, correct_answer")
+    .eq("skill", skill)
+    .eq("status", "approved")
+    .limit(10);
+
+  return (
+    <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
+      {header}
 
       {!questions || questions.length === 0 ? (
         <div className="flex flex-col items-center gap-2 rounded-3xl border border-dashed border-border p-8 text-center">
