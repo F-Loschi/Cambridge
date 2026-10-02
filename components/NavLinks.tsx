@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Sparkles, Target, User, Wrench, type LucideIcon } from "lucide-react";
+import { GraduationCap, Home, Sparkles, Target, User, Wrench, type LucideIcon } from "lucide-react";
 
 const BASE_LINKS: { href: string; label: string; icon: LucideIcon }[] = [
   { href: "/dashboard", label: "Início", icon: Home },
   { href: "/practice", label: "Praticar", icon: Target },
+  { href: "/study", label: "Estudar", icon: GraduationCap },
   { href: "/profile", label: "Perfil", icon: User },
 ];
 

@@ -53,6 +53,7 @@ export default async function PracticePage({
     .select("id, skill, part_type, content, correct_answer")
     .eq("skill", skill)
     .eq("status", "approved")
+    .eq("training", false)
     .limit(10);
 
   return (

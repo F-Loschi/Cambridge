@@ -57,6 +57,9 @@ function buildGeneratedQuestionSchema(kind: QuestionKind) {
   };
 }
 
+// For the study section: same format as the real part, but gentler.
+const TRAINING_RULE = `Write a TRAINING exercise: exactly the same format as the calibration examples but noticeably easier than the real exam (about B2 level): shorter text, common vocabulary, ONE clear language point per item, and distractors that are clearly wrong once the point is understood. Never reuse the calibration wording verbatim. Set difficultyEstimate to "B2".`;
+
 // Independent generation calls collapse onto the same scenario (three
 // near-identical "Had it not been for the weather" items in one batch), so
 // each call gets a random topic to spread them out.
@@ -78,6 +81,8 @@ export async function generateQuestion(params: {
   partType: string;
   kind: QuestionKind;
   calibrationExamples: string[]; // original examples matching the official style — never real exam text
+  /** Easier practice for the study section instead of exam-level items. */
+  training?: boolean;
 }): Promise<GeneratedQuestion> {
   const ai = getGeminiClient();
 
@@ -85,8 +90,11 @@ export async function generateQuestion(params: {
     model: AGENT_MODEL,
     config: {
       systemInstruction: `You write original Cambridge C1 Advanced practice questions for part type "${params.partType}".
-Match the format, register and difficulty of the calibration examples exactly, but never reuse
-their wording verbatim. "content.prompt" is the exact text the student sees (the question or the
+${
+        params.training
+          ? TRAINING_RULE
+          : "Match the format, register and difficulty of the calibration examples exactly, but never reuse their wording verbatim."
+      } "content.prompt" is the exact text the student sees (the question or the
 gapped sentence, with a blank shown as ___). "content.contextText" is only for a short surrounding
 passage/dialogue when the part type needs one. ${
         params.kind === "multiple_choice"

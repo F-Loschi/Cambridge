@@ -4,7 +4,9 @@
  * Reuses the exact same lib/agent modules the /admin/generate UI calls —
  * no reimplemented logic to drift out of sync.
  *
- * Usage: npm run generate-questions -- [countPerPartType] [partTypeId]
+ * Usage: npm run generate-questions -- [countPerPartType] [partTypeId] [--training]
+ *   --training  easier B2-level exercises for the study section (needs the
+ *               question_bank.training column)
  *   npm run generate-questions -- 3            # 3 of every part type
  *   npm run generate-questions -- 5 uoe_part2_open_cloze
  */
@@ -37,12 +39,13 @@ import { auditQuestion, blindSolve, generateQuestion } from "../lib/agent/questi
 import { checkQuestionFormat } from "../lib/agent/questionFormat";
 import { createAdminClient } from "../lib/supabase/admin";
 
-async function generateOne(partType: (typeof PART_TYPES)[number]) {
+async function generateOne(partType: (typeof PART_TYPES)[number], training: boolean) {
   const generated = await generateQuestion({
     skill: partType.skill,
     partType: partType.id,
     kind: partType.kind,
     calibrationExamples: partType.calibrationExamples,
+    training,
   });
 
   const blind = await blindSolve({
@@ -67,6 +70,7 @@ async function generateOne(partType: (typeof PART_TYPES)[number]) {
     explanation: generated.explanation,
     difficulty_estimate: generated.difficultyEstimate,
     status: audit.status,
+    training,
     generator_model: AGENT_MODEL,
     blind_solver_answer: blind.answer,
     audit_notes: { notes: audit.notes },
@@ -77,8 +81,10 @@ async function generateOne(partType: (typeof PART_TYPES)[number]) {
 }
 
 async function main() {
-  const countPerType = Number(process.argv[2] ?? 3);
-  const onlyPartTypeId = process.argv[3];
+  const training = process.argv.includes("--training");
+  const positional = process.argv.slice(2).filter((a) => !a.startsWith("--"));
+  const countPerType = Number(positional[0] ?? 3);
+  const onlyPartTypeId = positional[1];
   const partTypes = onlyPartTypeId
     ? [findPartType(onlyPartTypeId)].filter((p): p is NonNullable<typeof p> => p != null)
     : PART_TYPES;
@@ -96,7 +102,7 @@ async function main() {
     for (let i = 0; i < countPerType; i++) {
       process.stdout.write(`${partType.id} (${i + 1}/${countPerType})... `);
       try {
-        const status = await generateOne(partType);
+        const status = await generateOne(partType, training);
         if (status === "approved") approved++;
         else needsReview++;
         console.log(status);
