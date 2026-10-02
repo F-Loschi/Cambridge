@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { computeStreak } from "@/lib/scoring/streak";
 import { StreakFlame } from "@/components/StreakFlame";
 import { NavLinks } from "@/components/NavLinks";
+import { AppIcon } from "@/components/AppIcon";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -28,7 +29,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-10 border-b border-border bg-surface/90 backdrop-blur">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3 sm:px-6">
-          <span className="font-display text-lg font-extrabold text-brand">
+          <span className="flex items-center gap-2 font-display text-lg font-extrabold text-brand">
+            <AppIcon size={28} />
             Cambridge C1
           </span>
           <NavLinks isAdmin={isAdmin} variant="top" />
