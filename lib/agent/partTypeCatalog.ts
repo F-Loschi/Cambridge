@@ -9,6 +9,8 @@ export interface PartTypeDef {
   calibrationExamples: string[];
   /** short_answer only: max words allowed in correctAnswer (format-check limit). Ignored for multiple_choice. */
   maxAnswerWords?: number;
+  /** Word formation: the prompt must show the root word in capitals in parentheses, and the answer must derive from it. */
+  requiresRootWord?: boolean;
 }
 
 // Auto-generation only covers objectively-gradable part types — Writing and
@@ -46,6 +48,7 @@ Answer: until
     label: "UoE Parte 3 — Word formation",
     kind: "short_answer",
     maxAnswerWords: 1,
+    requiresRootWord: true,
     calibrationExamples: [
       `Sentence: The committee praised her for her ___ in handling the crisis. (DECISIVE)
 Answer: decisiveness

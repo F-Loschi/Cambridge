@@ -25,5 +25,23 @@ export function checkQuestionFormat(def: PartTypeDef, generated: GeneratedQuesti
   // up to three per the real exam's "no more than three words" instruction,
   // key word transformation allows a short phrase).
   const wordCount = correctAnswer.split(/\s+/).length;
-  return wordCount <= (def.maxAnswerWords ?? 1);
+  if (wordCount > (def.maxAnswerWords ?? 1)) return false;
+  return def.requiresRootWord ? answerDerivesFromRoot(prompt, correctAnswer) : true;
+}
+
+/**
+ * Word formation items show the root in capitals in parentheses, e.g.
+ * "(DECISIVE)". Generators sometimes omit it (leaving a gap with several
+ * valid answers) or answer with the root itself; both are rejected here.
+ */
+export function answerDerivesFromRoot(prompt: string, answer: string): boolean {
+  const root = prompt.match(/\(([A-Z][A-Z\s-]{2,})\)/)?.[1].trim().toLowerCase();
+  if (!root) return false;
+
+  const normalized = answer.trim().toLowerCase();
+  if (normalized === root) return false;
+
+  // A derived word keeps (most of) the root: "happy" -> "happiness" still shares "happ".
+  const stem = root.slice(0, Math.max(3, Math.min(4, root.length - 1)));
+  return normalized.includes(stem);
 }

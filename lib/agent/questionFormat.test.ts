@@ -1,11 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { checkQuestionFormat } from "./questionFormat";
+import { answerDerivesFromRoot, checkQuestionFormat } from "./questionFormat";
 import { findPartType } from "./partTypeCatalog";
 import type { GeneratedQuestion } from "./questionPipeline";
 
 const mc = findPartType("uoe_part1_multiple_choice_cloze")!;
 const shortAnswer = findPartType("uoe_part2_open_cloze")!;
 const keyWord = findPartType("uoe_part4_key_word_transformation")!;
+const wordFormation = findPartType("uoe_part3_word_formation")!;
 const listeningGap = findPartType("listening_part2_sentence_completion")!;
 
 function gen(overrides: Partial<GeneratedQuestion["content"]> & { correctAnswer?: string }): GeneratedQuestion {
@@ -60,5 +61,24 @@ describe("checkQuestionFormat — always required", () => {
   it("fails on an empty prompt or answer", () => {
     expect(checkQuestionFormat(shortAnswer, gen({ prompt: "", correctAnswer: "x" }))).toBe(false);
     expect(checkQuestionFormat(shortAnswer, gen({ correctAnswer: "" }))).toBe(false);
+  });
+});
+
+describe("word formation root word", () => {
+  it("accepts an answer derived from the root shown in the prompt", () => {
+    const q = gen({ prompt: "Her ___ surprised everyone. (DECISIVE)", correctAnswer: "decisiveness" });
+    expect(checkQuestionFormat(wordFormation, q)).toBe(true);
+    expect(answerDerivesFromRoot("A ___ trip. (HAPPY)", "happily")).toBe(true);
+    expect(answerDerivesFromRoot("She was ___ to go. (ABLE)", "unable")).toBe(true);
+  });
+
+  it("rejects a prompt with no root word", () => {
+    const q = gen({ prompt: "Buying cheap items is a waste of ___.", correctAnswer: "money" });
+    expect(checkQuestionFormat(wordFormation, q)).toBe(false);
+  });
+
+  it("rejects an answer that is just the root, or unrelated to it", () => {
+    expect(answerDerivesFromRoot("A ___ in profits. (INCREASE)", "increase")).toBe(false);
+    expect(answerDerivesFromRoot("A ___ in profits. (INCREASE)", "money")).toBe(false);
   });
 });

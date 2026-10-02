@@ -20,7 +20,7 @@ export interface Topic {
   howToStudy: string[];
   pitfalls: string[];
   inTheExam: string;
-  exercise: Pick<PartTypeDef, "kind" | "calibrationExamples" | "maxAnswerWords">;
+  exercise: Pick<PartTypeDef, "kind" | "calibrationExamples" | "maxAnswerWords" | "requiresRootWord">;
 }
 
 /** The part_type stored on a topic's exercises in question_bank. */
@@ -628,13 +628,14 @@ Answer: B) to apply`,
     exercise: {
       kind: "short_answer",
       maxAnswerWords: 1,
+      requiresRootWord: true,
       calibrationExamples: [
         `Prompt: She was ___ to attend the meeting because of illness. (ABLE)
 Answer: unable
 (The root word is given in capitals in parentheses; the answer is ONE word formed from it, and the context must force a single form — e.g. a negative prefix, a noun suffix or an adverb.)`,
-        `Prompt: The company announced a ___ in its profits. (INCREASE)
-Answer: increase
-(Avoid items that accept several forms; check the sentence admits only one.)`,
+        `Prompt: The ___ of the new bridge took almost three years. (CONSTRUCT)
+Answer: construction
+(The answer is never the root word itself, and the sentence admits only one derived form. Always show the root in capitals in parentheses.)`,
       ],
     },
   },
