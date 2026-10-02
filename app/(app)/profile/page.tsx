@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { ProfileForm } from "@/components/ProfileForm";
+import { ReminderSettings } from "@/components/ReminderSettings";
 
 export default async function ProfilePage() {
   const supabase = await createClient();
@@ -11,20 +12,29 @@ export default async function ProfilePage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("full_name, exam_date, daily_goal_questions")
+    .select(
+      "full_name, exam_date, daily_goal_questions, reminder_push_enabled, reminder_email_enabled",
+    )
     .eq("id", user.id)
     .single();
 
   return (
     <div className="mx-auto max-w-sm px-4 py-8 sm:px-6">
       <h1 className="mb-6 text-2xl font-extrabold">Perfil</h1>
-      <ProfileForm
-        userId={user.id}
-        email={user.email ?? ""}
-        initialFullName={profile?.full_name ?? ""}
-        initialExamDate={profile?.exam_date ?? null}
-        initialDailyGoal={profile?.daily_goal_questions ?? 5}
-      />
+      <div className="flex flex-col gap-6">
+        <ProfileForm
+          userId={user.id}
+          email={user.email ?? ""}
+          initialFullName={profile?.full_name ?? ""}
+          initialExamDate={profile?.exam_date ?? null}
+          initialDailyGoal={profile?.daily_goal_questions ?? 5}
+        />
+        <ReminderSettings
+          userId={user.id}
+          initialPushEnabled={profile?.reminder_push_enabled ?? false}
+          initialEmailEnabled={profile?.reminder_email_enabled ?? false}
+        />
+      </div>
     </div>
   );
 }

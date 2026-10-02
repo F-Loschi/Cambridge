@@ -22,6 +22,18 @@ export interface Profile {
   daily_goal_questions: number;
   weekly_insight_text: string | null;
   weekly_insight_generated_at: string | null;
+  reminder_push_enabled: boolean;
+  reminder_email_enabled: boolean;
+  last_reminder_sent_date: string | null; // YYYY-MM-DD
+  created_at: string;
+}
+
+export interface PushSubscriptionRow {
+  id: string;
+  user_id: string;
+  endpoint: string;
+  p256dh: string;
+  auth_key: string;
   created_at: string;
 }
 
