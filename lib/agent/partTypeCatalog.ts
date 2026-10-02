@@ -79,6 +79,36 @@ Answer: C
     ],
   },
   {
+    id: "reading_part6_cross_text_matching",
+    skill: "reading_use_of_english",
+    label: "Reading Parte 6 — Cross-text multiple matching",
+    kind: "multiple_choice",
+    calibrationExamples: [
+      `Passage (contextText — four short texts, each ~40-60 words, labelled A-D, all giving a differing personal opinion on the same topic, e.g. whether city life is better than rural life):
+A) [opinion favouring city convenience but noting the expense]
+B) [opinion favouring rural quiet but noting isolation]
+C) [opinion that it depends entirely on career, not lifestyle]
+D) [opinion favouring city life specifically for its cultural variety]
+Question: Which writer expresses a different view from the others regarding what should determine where someone lives?
+Options: A) Writer A  B) Writer B  C) Writer C  D) Writer D
+Answer: C
+(All four texts discuss the same topic from different angles; the question asks the reader to identify agreement/disagreement or a unique stance across texts — never a detail from a single text in isolation. Always use exactly four writer options, A-D.)`,
+    ],
+  },
+  {
+    id: "reading_part7_gapped_text",
+    skill: "reading_use_of_english",
+    label: "Reading Parte 7 — Gapped text",
+    kind: "multiple_choice",
+    calibrationExamples: [
+      `Passage (contextText — a continuous article of several paragraphs with one paragraph removed and replaced by a gap marker, e.g. "[GAP]"): an article about the history of a small invention, written so that the paragraph before the gap ends on an unresolved point (e.g. "...but one obstacle remained unsolved for nearly a decade.") and the paragraph after the gap opens by referring back to something that must have been stated in the missing paragraph (e.g. "This breakthrough changed everything.").
+Question: Which paragraph best fits the gap marked [GAP]?
+Options: A) [a paragraph describing the eventual solution to the obstacle]  B) [a paragraph about an unrelated later event]  C) [a paragraph repeating information already given earlier]  D) [a paragraph that contradicts the article's timeline]
+Answer: A
+(The correct option must link logically to BOTH the paragraph immediately before and immediately after the gap — via a pronoun, a repeated idea, or a clear cause-effect connection. The other three options must each fail one of those links. Always use exactly four paragraph options, A-D.)`,
+    ],
+  },
+  {
     id: "listening_part1_multiple_choice",
     skill: "listening",
     label: "Listening Parte 1 — Multiple choice",
@@ -101,6 +131,32 @@ Answer: B`,
 Gap sentence (prompt): Visitors should arrive at the main entrance ___ minutes before the tour starts.
 Answer: fifteen
 (The answer is always taken verbatim from what was "said" — no more than three words.)`,
+    ],
+  },
+  {
+    id: "listening_part3_multiple_choice",
+    skill: "listening",
+    label: "Listening Parte 3 — Multiple choice (interview)",
+    kind: "multiple_choice",
+    calibrationExamples: [
+      `Context (contextText — a longer two-person interview, several exchanges, more nuanced than Part 1): An interviewer asks a travel writer about her latest book. She explains that, although she expected the research trips to be the hardest part of writing it, she actually found structuring the chapters afterward far more demanding, since the stories refused to fit a simple chronological order.
+Question: What does the travel writer say was the most difficult aspect of writing the book?
+Options: A) Finding time to travel.  B) Organising the material into chapters.  C) Remembering details from her trips.  D) Convincing her publisher of the concept.
+Answer: B
+(Unlike Part 1, the context should be long enough to require tracking an opinion that shifts or gets refined over the course of the exchange — the correct answer should not be obvious from the first sentence alone.)`,
+    ],
+  },
+  {
+    id: "listening_part4_multiple_matching",
+    skill: "listening",
+    label: "Listening Parte 4 — Multiple matching (opinion)",
+    kind: "multiple_choice",
+    calibrationExamples: [
+      `Context (contextText — one short monologue, a single speaker giving a personal opinion on a topic, as if one of several similar speakers heard in sequence): "Everyone kept telling me working from home would be easier, but honestly I miss having people around to bounce ideas off. I get more done in terms of raw output, sure, but I think the quality of my ideas has actually gone down."
+Question: What is the speaker's main point about working from home?
+Options: A) It has improved the quality of her ideas.  B) It has made her less productive overall.  C) It has reduced the number of hours she works.  D) It has cost her valuable collaboration with others.
+Answer: D
+(Each item is one speaker's short, self-contained opinion — the question asks what that speaker's overall attitude or main point is, not a factual detail.)`,
     ],
   },
 ];
