@@ -59,10 +59,25 @@ Answer: decisiveness
     kind: "short_answer",
     maxAnswerWords: 8,
     calibrationExamples: [
-      `Original sentence: "It's possible that the flight will be delayed because of the storm."
-Keyword: LIKELY
-Answer: "The flight is likely to be delayed because of the storm."
-(The prompt must show the original sentence and the keyword in capitals; the answer must use between 3 and 6 words including the keyword and keep the original meaning exactly.)`,
+      `Prompt (exactly this layout, nothing else — no instructions, no "Answer:" line):
+It's possible that the flight will be delayed because of the storm.
+LIKELY
+The flight ___ because of the storm.
+Answer: is likely to be delayed
+(Rules: the answer is only the words that fill the gap, 3-6 words, and must contain the keyword UNCHANGED. Read the second sentence with the answer put into the gap: it must be fully grammatical and mean the same as the original.)`,
+      `Prompt:
+"I wish I hadn't spent so much money," said Tom.
+REGRETTED
+Tom ___ so much money.
+Answer: regretted spending
+(A structure change — verb pattern -ing vs to-infinitive — gives exactly one correct answer.)`,
+      `Prompt:
+I can't tolerate his constant complaining any longer.
+UP
+I can't ___ his constant complaining any longer.
+Answer: put up with
+(A fixed phrasal verb, keyword unchanged: exactly one correct answer.)`,
+      `Keyword choice (important): pick keywords that force ONE fixed phrase, phrasal verb, collocation or grammatical structure — e.g. LIKELY, REGRETTED, UP (put up with), SOONER (no sooner ... than), UNLESS, RATHER (would rather). Do NOT pick keywords where interchangeable adjectives or nouns could fill the gap: SURPRISE would accept "total", "complete" or "great" surprise, so a correct student answer would be marked wrong by exact matching. Never write an item where more than one natural answer exists, and never give an answer that omits the keyword. Vary the structure tested from item to item (passive, reported speech, wish/regret, causative, comparatives, phrasal verbs, inversion, conditionals, modal verbs) — do not fall back on the same one.`,
     ],
   },
   {

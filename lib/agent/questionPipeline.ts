@@ -57,6 +57,22 @@ function buildGeneratedQuestionSchema(kind: QuestionKind) {
   };
 }
 
+// Independent generation calls collapse onto the same scenario (three
+// near-identical "Had it not been for the weather" items in one batch), so
+// each call gets a random topic to spread them out.
+const TOPICS = [
+  "workplace and careers", "travel and tourism", "science and research", "the arts and museums",
+  "health and fitness", "urban life and housing", "the environment and climate", "technology and social media",
+  "education and learning", "food and cooking", "sport and competition", "history and archaeology",
+  "family and relationships", "money and consumer habits", "transport and commuting", "media and journalism",
+  "volunteering and charity", "architecture and design", "music and performance", "business and start-ups",
+  "law and public safety", "language and communication", "wildlife and nature", "fashion and trends",
+];
+
+function pickTopic(): string {
+  return TOPICS[Math.floor(Math.random() * TOPICS.length)];
+}
+
 export async function generateQuestion(params: {
   skill: Skill;
   partType: string;
@@ -83,7 +99,7 @@ passage/dialogue when the part type needs one. ${
     contents: `Calibration examples (original style reference, do not copy):
 ${params.calibrationExamples.map((e, i) => `Example ${i + 1}:\n${e}`).join("\n\n")}
 
-Generate one new, original question.`,
+Generate one new, original question. Set it in the world of: ${pickTopic()}. Do not default to the most obvious structure or scenario for this part type.`,
   });
 
   if (!response.text) throw new Error("Agent returned no text content");
