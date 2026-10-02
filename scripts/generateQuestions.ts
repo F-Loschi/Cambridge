@@ -111,6 +111,7 @@ async function main() {
   }
 
   console.log(`\nDone. approved=${approved} needsReview=${needsReview} failed=${failed}`);
+  console.log("New Listening questions play with the browser voice until you run: npm run backfill-audio");
 }
 
 main();

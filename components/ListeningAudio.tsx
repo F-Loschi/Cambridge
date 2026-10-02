@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { Headphones, Play, Square } from "lucide-react";
 import { pickEnglishVoice, splitSentences } from "@/lib/ui/speech";
 
@@ -11,15 +11,58 @@ const subscribeNothing = () => () => {};
 const detectSpeech = () => "speechSynthesis" in window;
 const noSpeechOnServer = () => false;
 
-export function ListeningAudio({ text, revealed }: { text: string; revealed: boolean }) {
-  const supported = useSyncExternalStore(subscribeNothing, detectSpeech, noSpeechOnServer);
+/**
+ * Plays the stored Gemini recording when the question has one (audioUrl);
+ * otherwise, or if the file fails to load, falls back to the browser's own
+ * speech synthesis.
+ */
+export function ListeningAudio({
+  text,
+  audioUrl,
+  revealed,
+}: {
+  text: string;
+  audioUrl?: string;
+  revealed: boolean;
+}) {
+  const speechSupported = useSyncExternalStore(subscribeNothing, detectSpeech, noSpeechOnServer);
   const [plays, setPlays] = useState(0);
   const [speaking, setSpeaking] = useState(false);
   const [noEnglishVoice, setNoEnglishVoice] = useState(false);
+  const [fileFailed, setFileFailed] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  useEffect(() => () => window.speechSynthesis?.cancel(), []);
+  const useFile = !!audioUrl && !fileFailed;
 
-  function play() {
+  useEffect(
+    () => () => {
+      audioRef.current?.pause();
+      window.speechSynthesis?.cancel();
+    },
+    [],
+  );
+
+  function playFile() {
+    if (!audioRef.current) {
+      const audio = new Audio(audioUrl);
+      audio.onended = () => setSpeaking(false);
+      audio.onerror = () => {
+        setSpeaking(false);
+        setFileFailed(true);
+      };
+      audioRef.current = audio;
+    }
+    const audio = audioRef.current;
+    audio.currentTime = 0;
+    setPlays((p) => p + 1);
+    setSpeaking(true);
+    audio.play().catch(() => {
+      setSpeaking(false);
+      setFileFailed(true);
+    });
+  }
+
+  function playBrowserSpeech() {
     const synth = window.speechSynthesis;
     synth.cancel();
     const voices = synth.getVoices();
@@ -48,17 +91,21 @@ export function ListeningAudio({ text, revealed }: { text: string; revealed: boo
   }
 
   function stop() {
-    window.speechSynthesis.cancel();
+    if (useFile) {
+      audioRef.current?.pause();
+    } else {
+      window.speechSynthesis.cancel();
+    }
     setSpeaking(false);
   }
 
   // Without usable English audio, showing the text is better than a dead
   // question.
-  if (!supported || noEnglishVoice) {
+  if (!useFile && (!speechSupported || noEnglishVoice)) {
     return (
       <div className="mb-4 rounded-2xl bg-background p-4 text-sm text-muted">
         <p className="mb-1 text-xs font-bold">
-          {supported
+          {speechSupported
             ? "Seu navegador não tem voz em inglês instalada (no Windows: Configurações > Hora e idioma > Fala). Transcrição:"
             : "Áudio indisponível neste navegador — transcrição:"}
         </p>
@@ -93,7 +140,7 @@ export function ListeningAudio({ text, revealed }: { text: string; revealed: boo
         ) : (
           <button
             type="button"
-            onClick={play}
+            onClick={useFile ? playFile : playBrowserSpeech}
             disabled={exhausted}
             aria-label="Reproduzir áudio"
             className="flex h-11 w-11 items-center justify-center rounded-full bg-teal text-white shadow-sm transition-transform hover:scale-105 disabled:opacity-40"

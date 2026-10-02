@@ -224,7 +224,12 @@ export function QuestionRunner({
       <div className="rounded-3xl border border-border bg-surface p-5 shadow-sm">
         {parsed.contextText &&
           (current.skill === "listening" ? (
-            <ListeningAudio key={current.id} text={parsed.contextText} revealed={revealed} />
+            <ListeningAudio
+              key={current.id}
+              text={parsed.contextText}
+              audioUrl={parsed.audioUrl}
+              revealed={revealed}
+            />
           ) : (
             <p className="mb-4 rounded-2xl bg-background p-4 text-sm text-muted">{parsed.contextText}</p>
           ))}

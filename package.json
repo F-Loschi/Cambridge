@@ -9,7 +9,8 @@
     "lint": "eslint",
     "test": "vitest run",
     "generate-questions": "tsx scripts/generateQuestions.ts",
-    "seed-speaking": "tsx scripts/seedSpeakingPrompts.ts"
+    "seed-speaking": "tsx scripts/seedSpeakingPrompts.ts",
+    "backfill-audio": "tsx scripts/backfillListeningAudio.ts"
   },
   "dependencies": {
     "@google/genai": "^2.22.0",

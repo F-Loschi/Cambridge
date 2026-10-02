@@ -2,6 +2,7 @@ export interface QuestionContent {
   prompt?: string;
   contextText?: string;
   options?: string[];
+  audioUrl?: string;
 }
 
 /** question_bank.content is jsonb with a shape that varies by part_type — read it defensively. */
@@ -13,5 +14,7 @@ export function readQuestionContent(content: Record<string, unknown>): QuestionC
       ? (content.options as string[])
       : undefined;
 
-  return { prompt, contextText, options };
+  const audioUrl = typeof content.audioUrl === "string" ? content.audioUrl : undefined;
+
+  return { prompt, contextText, options, audioUrl };
 }
